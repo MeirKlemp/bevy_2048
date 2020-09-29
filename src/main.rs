@@ -119,6 +119,7 @@ impl Position {
     }
 }
 
+/// Spawning a new cell for every SpawnCellEvent event.
 fn spawn_cells(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -126,9 +127,11 @@ fn spawn_cells(
     spawn_events: Res<Events<SpawnCellEvent>>,
     mut positions: Query<&Position>,
 ) {
+    // Vector of empty cells for all the iterations.
     let mut free_pos = None;
     for _ in listener.reader.iter(&spawn_events) {
         if free_pos.is_none() {
+            // Creating vector of empty cells.
             let mut vec = Vec::new();
             for row in 0..4 {
                 for col in 0..4 {
@@ -136,6 +139,7 @@ fn spawn_cells(
                 }
             }
 
+            // Removing the existing cells from the vector.
             for pos in &mut positions.iter() {
                 if let Some(idx) = vec.iter().position(|x| *x == *pos) {
                     vec.remove(idx);
@@ -147,15 +151,19 @@ fn spawn_cells(
 
         let vec = free_pos.as_mut().unwrap();
 
+        // Checking that the board is not full.
         if vec.len() != 0 {
+            // Choosing a random empty cell.
             let mut rng = rand::thread_rng();
             let idx = rng.gen_range(0, vec.len());
-
             let pos = vec.remove(idx);
+
+            // Choosing the new cell's level.
             let cell = Cell {
                 level: rng.gen_range(0, MAX_STARTING_LEVEL),
             };
 
+            // Spawning a new cell.
             commands
                 .spawn(SpriteComponents {
                     material: materials.add(cell.color().into()),
