@@ -17,6 +17,7 @@ fn main() {
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
         .add_system(spawn_cells.system())
+        .add_system(spawn_animation.system())
         .run();
 }
 
@@ -36,6 +37,7 @@ fn setup(
         });
 
     // Creating a grid of empty cells.
+
     let offset = Vec3::new(
         -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
         -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
@@ -57,18 +59,21 @@ fn setup(
         }
     }
 
-    // Spawning 2 cells at the beginning.
+    // Spawning cells at the beginning.
     for _ in 0..STARTING_CELLS {
         spawn_cell_events.send(SpawnCellEvent);
     }
 }
 
+/// Component for saving cell level.
 #[derive(Debug)]
 struct Cell {
     level: u32,
 }
 
 impl Cell {
+    /// Each level has a unique color (up to 9).
+    /// Returns the color for a given cell.
     fn color(&self) -> Color {
         match self.level {
             0 => Color::rgb_u8(255, 255, 0),  // Yellow
@@ -85,26 +90,31 @@ impl Cell {
         }
     }
 
+    // Calculates the score of a given cell (pow(2, level)).
     fn score(&self) -> u32 {
         2u32.pow(self.level + 1)
     }
 }
 
+/// Event for spawning new cells.
 struct SpawnCellEvent;
 
+/// Event listener for SpawnCellEvent.
 #[derive(Default)]
 struct SpawnCellListener {
     reader: EventReader<SpawnCellEvent>,
 }
 
-#[derive(Debug, PartialEq)]
+/// Component for saving the position of a cell in the grid.
+#[derive(Debug, PartialEq, Copy, Clone)]
 struct Position {
     row: usize,
     col: usize,
 }
 
-impl Position {
-    fn vec3(&self) -> Vec3 {
+impl From<Position> for Vec3 {
+    /// Transforms a position into a world point.
+    fn from(pos: Position) -> Self {
         let offset = Vec3::new(
             -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
             -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
@@ -112,10 +122,76 @@ impl Position {
         );
 
         Vec3::new(
-            (CELL_SIZE + CELL_SPACING) * self.col as f32,
-            (CELL_SIZE + CELL_SPACING) * self.row as f32,
+            (CELL_SIZE + CELL_SPACING) * pos.col as f32,
+            (CELL_SIZE + CELL_SPACING) * pos.row as f32,
             0.0,
         ) + offset
+    }
+}
+
+/// Component for animating the spawning of a new cell.
+struct SpawnAnimation {
+    timer: Timer,
+    ticks: usize,
+    max_ticks: usize,
+    finished: bool,
+}
+
+impl SpawnAnimation {
+    /// Returns a value in the range [0, 1] for the animation.
+    fn value(&self) -> f32 {
+        self.ticks as f32 / self.max_ticks as f32
+    }
+
+    /// Updates the animation, needs delta_seconds from a timer.
+    /// Returns `true` if the animation is not finished.
+    fn update(&mut self, delta_seconds: f32) -> bool {
+        if !self.finished {
+            self.timer.tick(delta_seconds);
+
+            if self.timer.finished {
+                self.ticks += 1;
+                if self.ticks >= self.max_ticks {
+                    self.finished = true;
+                }
+            }
+
+            return self.timer.finished;
+        }
+
+        false
+    }
+}
+
+impl Default for SpawnAnimation {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(1.0 / 60.0, true),
+            ticks: 0,
+            max_ticks: 3,
+            finished: false,
+        }
+    }
+}
+
+/// Animating each cell that contains SpawnAnimation component.
+/// When the animation is finished, the SpawnAnimation component
+/// is removed from the entity.
+fn spawn_animation(
+    mut commands: Commands,
+    time: Res<Time>,
+    entity: Entity,
+    mut animation: Mut<SpawnAnimation>,
+    mut sprite: Mut<Sprite>,
+) {
+    if animation.update(time.delta_seconds) {
+        // Updating the sprite size while the animation is not finished.
+        let size = CELL_SIZE * animation.value();
+        sprite.size.set_x(size);
+        sprite.size.set_y(size);
+    } else {
+        // When the animation is finished, the component is being removed.
+        commands.remove_one::<SpawnAnimation>(entity);
     }
 }
 
@@ -167,15 +243,15 @@ fn spawn_cells(
             commands
                 .spawn(SpriteComponents {
                     material: materials.add(cell.color().into()),
-                    transform: Transform::from_translation(pos.vec3()),
-                    sprite: Sprite::new(Vec2::new(CELL_SIZE, CELL_SIZE)),
+                    transform: Transform::from_translation(pos.into()),
                     ..Default::default()
                 })
                 .with(cell)
-                .with(pos);
+                .with(pos)
+                .with(SpawnAnimation::default());
         } else {
             #[cfg(debug_assertions)]
-            panic!("Tried to spawn a cell when the board was full.")
+            panic!("spawn_cells(): Tried to spawn a cell when the board was full.")
         }
     }
 }
