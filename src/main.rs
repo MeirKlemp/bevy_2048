@@ -2,21 +2,21 @@ use bevy::{prelude::*, render::pass::ClearColor};
 use rand::Rng;
 
 const BOARD_SIZE: f32 = 500.0;
-const CELL_SIZE: f32 = (BOARD_SIZE * 0.85) / 4.0;
-const CELL_SPACING: f32 = (BOARD_SIZE * 0.15) / 5.0;
+const TILE_SIZE: f32 = (BOARD_SIZE * 0.85) / 4.0;
+const TILE_SPACING: f32 = (BOARD_SIZE * 0.15) / 5.0;
 
-const STARTING_CELLS: u32 = 2;
+const STARTING_TILES: u32 = 2;
 const MAX_STARTING_LEVEL: u32 = 2; // [0, MAX_STARTING_LEVEL(exluding))
 
 fn main() {
     App::build()
         .add_default_plugins()
-        .add_event::<SpawnCellEvent>()
-        .init_resource::<SpawnCellListener>()
+        .add_event::<SpawnTileEvent>()
+        .init_resource::<SpawnTileListener>()
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
-        .add_system(spawn_cells.system())
+        .add_system(spawn_tiles.system())
         .add_system(spawn_animation.system())
         .run();
 }
@@ -24,7 +24,7 @@ fn main() {
 fn setup(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut spawn_cell_events: ResMut<Events<SpawnCellEvent>>,
+    mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
 ) {
     commands
         // Camera.
@@ -36,44 +36,44 @@ fn setup(
             ..Default::default()
         });
 
-    // Creating a grid of empty cells.
+    // Creating a grid of empty tiles.
 
     let offset = Vec3::new(
-        -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
-        -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
+        -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
+        -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
         0.0,
     );
 
     for row in 0..4 {
-        let y_pos = (CELL_SIZE + CELL_SPACING) * row as f32;
+        let y_pos = (TILE_SIZE + TILE_SPACING) * row as f32;
         for col in 0..4 {
-            let x_pos = (CELL_SIZE + CELL_SPACING) * col as f32;
+            let x_pos = (TILE_SIZE + TILE_SPACING) * col as f32;
             let position = Vec3::new(x_pos, y_pos, 0.0) + offset;
 
             commands.spawn(SpriteComponents {
                 material: materials.add(Color::rgba_u8(238, 228, 218, 90).into()),
-                sprite: Sprite::new(Vec2::new(CELL_SIZE, CELL_SIZE)),
+                sprite: Sprite::new(Vec2::new(TILE_SIZE, TILE_SIZE)),
                 transform: Transform::from_translation(position),
                 ..Default::default()
             });
         }
     }
 
-    // Spawning cells at the beginning.
-    for _ in 0..STARTING_CELLS {
-        spawn_cell_events.send(SpawnCellEvent);
+    // Spawning tiles at the beginning.
+    for _ in 0..STARTING_TILES {
+        spawn_tile_events.send(SpawnTileEvent);
     }
 }
 
-/// Component for saving cell level.
+/// Component for saving tile level.
 #[derive(Debug)]
-struct Cell {
+struct Tile {
     level: u32,
 }
 
-impl Cell {
+impl Tile {
     /// Each level has a unique color (up to 9).
-    /// Returns the color for a given cell.
+    /// Returns the color for a given tile.
     fn color(&self) -> Color {
         match self.level {
             0 => Color::rgb_u8(255, 255, 0),  // Yellow
@@ -90,22 +90,22 @@ impl Cell {
         }
     }
 
-    // Calculates the score of a given cell (pow(2, level)).
+    /// Calculates the score of a given tile (pow(2, level)).
     fn score(&self) -> u32 {
         2u32.pow(self.level + 1)
     }
 }
 
-/// Event for spawning new cells.
-struct SpawnCellEvent;
+/// Event for spawning new tiles.
+struct SpawnTileEvent;
 
-/// Event listener for SpawnCellEvent.
+/// Event listener for SpawnTileEvent.
 #[derive(Default)]
-struct SpawnCellListener {
-    reader: EventReader<SpawnCellEvent>,
+struct SpawnTileListener {
+    reader: EventReader<SpawnTileEvent>,
 }
 
-/// Component for saving the position of a cell in the grid.
+/// Component for saving the position of a tile in the grid.
 #[derive(Debug, PartialEq, Copy, Clone)]
 struct Position {
     row: usize,
@@ -116,20 +116,20 @@ impl From<Position> for Vec3 {
     /// Transforms a position into a world point.
     fn from(pos: Position) -> Self {
         let offset = Vec3::new(
-            -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
-            -(BOARD_SIZE - CELL_SIZE) / 2.0 + CELL_SPACING,
+            -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
+            -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
             0.0,
         );
 
         Vec3::new(
-            (CELL_SIZE + CELL_SPACING) * pos.col as f32,
-            (CELL_SIZE + CELL_SPACING) * pos.row as f32,
+            (TILE_SIZE + TILE_SPACING) * pos.col as f32,
+            (TILE_SIZE + TILE_SPACING) * pos.row as f32,
             0.0,
         ) + offset
     }
 }
 
-/// Component for animating the spawning of a new cell.
+/// Component for animating the spawning of a new tile.
 struct SpawnAnimation {
     timer: Timer,
     ticks: usize,
@@ -174,7 +174,7 @@ impl Default for SpawnAnimation {
     }
 }
 
-/// Animating each cell that contains SpawnAnimation component.
+/// Animating each tile that contains SpawnAnimation component.
 /// When the animation is finished, the SpawnAnimation component
 /// is removed from the entity.
 fn spawn_animation(
@@ -186,7 +186,7 @@ fn spawn_animation(
 ) {
     if animation.update(time.delta_seconds) {
         // Updating the sprite size while the animation is not finished.
-        let size = CELL_SIZE * animation.value();
+        let size = TILE_SIZE * animation.value();
         sprite.size.set_x(size);
         sprite.size.set_y(size);
     } else {
@@ -195,19 +195,19 @@ fn spawn_animation(
     }
 }
 
-/// Spawning a new cell for every SpawnCellEvent event.
-fn spawn_cells(
+/// Spawning a new tile for every SpawnTileEvent event.
+fn spawn_tiles(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut listener: ResMut<SpawnCellListener>,
-    spawn_events: Res<Events<SpawnCellEvent>>,
+    mut listener: ResMut<SpawnTileListener>,
+    spawn_events: Res<Events<SpawnTileEvent>>,
     mut positions: Query<&Position>,
 ) {
-    // Vector of empty cells for all the iterations.
+    // Vector of empty tiles for all the iterations.
     let mut free_pos = None;
     for _ in listener.reader.iter(&spawn_events) {
         if free_pos.is_none() {
-            // Creating vector of empty cells.
+            // Creating vector of empty tiles.
             let mut vec = Vec::new();
             for row in 0..4 {
                 for col in 0..4 {
@@ -215,7 +215,7 @@ fn spawn_cells(
                 }
             }
 
-            // Removing the existing cells from the vector.
+            // Removing the existing tiles from the vector.
             for pos in &mut positions.iter() {
                 if let Some(idx) = vec.iter().position(|x| *x == *pos) {
                     vec.remove(idx);
@@ -229,29 +229,29 @@ fn spawn_cells(
 
         // Checking that the board is not full.
         if vec.len() != 0 {
-            // Choosing a random empty cell.
+            // Choosing a random empty tile.
             let mut rng = rand::thread_rng();
             let idx = rng.gen_range(0, vec.len());
             let pos = vec.remove(idx);
 
-            // Choosing the new cell's level.
-            let cell = Cell {
+            // Choosing the new tile's level.
+            let tile = Tile {
                 level: rng.gen_range(0, MAX_STARTING_LEVEL),
             };
 
-            // Spawning a new cell.
+            // Spawning a new tile.
             commands
                 .spawn(SpriteComponents {
-                    material: materials.add(cell.color().into()),
+                    material: materials.add(tile.color().into()),
                     transform: Transform::from_translation(pos.into()),
                     ..Default::default()
                 })
-                .with(cell)
+                .with(tile)
                 .with(pos)
                 .with(SpawnAnimation::default());
         } else {
             #[cfg(debug_assertions)]
-            panic!("spawn_cells(): Tried to spawn a cell when the board was full.")
+            panic!("spawn_tiles(): Tried to spawn a tile when the board was full.")
         }
     }
 }
