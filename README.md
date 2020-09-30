@@ -12,14 +12,14 @@ The game is in development.
     - [x] Create an event system for spawning new tiles
     - [x] Spawn 2 tiles at startup
     - [x] Add tile spawning animation 
-  - [ ] Tile movement
-    - [ ] Handle the keys input
-    - [ ] Move tiles only if the new position:
-      - [ ] is not out of bounds and
-      - [ ] is empty or
-      - [ ] has a moving tile or
-      - [ ] has a not-merged-tile with the same level
-    - [ ] Add movement animation
+  - [x] Tile movement
+    - [x] Handle the keys input
+    - [x] Move tiles only if the new position:
+      - [x] is not out of bounds and
+      - [x] is empty or
+      - [x] has a moving tile or
+      - [x] has a not-merged-tile with the same level
+    - [x] Add movement animation
 - [ ] Score system
   - [ ] Add score to the score system every merge
   - [ ] Highscore system
@@ -31,3 +31,6 @@ The game is in development.
   - [ ] Add new game button
   - [ ] Add a title
   - [ ] Add a link to this repo and bevy repo
+  - [ ] Add explanation of the tiles' colors
+- [ ] Polish
+  - [ ] Remove the usage of commands for changing components' values(too slow)
