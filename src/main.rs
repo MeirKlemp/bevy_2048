@@ -1,12 +1,17 @@
 use bevy::{prelude::*, render::pass::ClearColor};
 use rand::Rng;
 
+/// The size of the whole board.
 const BOARD_SIZE: f32 = 500.0;
+/// The size of each tile.
 const TILE_SIZE: f32 = (BOARD_SIZE * 0.85) / 4.0;
+/// The space between two tiles.
 const TILE_SPACING: f32 = (BOARD_SIZE * 0.15) / 5.0;
 
+/// Number of tiles to spawn at start.
 const STARTING_TILES: u32 = 2;
-const MAX_STARTING_LEVEL: u32 = 2; // [0, MAX_STARTING_LEVEL(exluding))
+/// The maximum level(exluded) of a spawned tile.
+const MAX_STARTING_LEVEL: u32 = 2;
 
 fn main() {
     App::build()
@@ -37,23 +42,14 @@ fn setup(
         });
 
     // Creating a grid of empty tiles.
-
-    let offset = Vec3::new(
-        -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
-        -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
-        0.0,
-    );
-
     for row in 0..4 {
-        let y_pos = (TILE_SIZE + TILE_SPACING) * row as f32;
         for col in 0..4 {
-            let x_pos = (TILE_SIZE + TILE_SPACING) * col as f32;
-            let position = Vec3::new(x_pos, y_pos, 0.0) + offset;
+            let position = Position { row, col };
 
             commands.spawn(SpriteComponents {
                 material: materials.add(Color::rgba_u8(238, 228, 218, 90).into()),
                 sprite: Sprite::new(Vec2::new(TILE_SIZE, TILE_SIZE)),
-                transform: Transform::from_translation(position),
+                transform: Transform::from_translation(position.into()),
                 ..Default::default()
             });
         }
@@ -115,6 +111,7 @@ struct Position {
 impl From<Position> for Vec3 {
     /// Transforms a position into a world point.
     fn from(pos: Position) -> Self {
+        // Offset from the bottom left point of the board.
         let offset = Vec3::new(
             -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
             -(BOARD_SIZE - TILE_SIZE) / 2.0 + TILE_SPACING,
@@ -239,7 +236,7 @@ fn spawn_tiles(
                 level: rng.gen_range(0, MAX_STARTING_LEVEL),
             };
 
-            // Spawning a new tile.
+            // Spawning the new tile.
             commands
                 .spawn(SpriteComponents {
                     material: materials.add(tile.color().into()),

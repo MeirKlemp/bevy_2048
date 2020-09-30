@@ -3,7 +3,7 @@
 
 The game is in development.
 
-# TODOS
+## TODOS
 - [x] Board
   - [x] Create the background at startup
   - [x] Create the empty tiles grid at startup
