@@ -29,6 +29,11 @@ impl Animation {
         self.ticks as f32 / self.max_ticks as f32
     }
 
+    /// Returns the reversed value, for "backwards" animation.
+    pub fn rev_value(&self) -> f32 {
+        1.0 - self.value()
+    }
+
     /// Updates the animation, needs `delta_seconds` from the time resource.
     /// Returns `true` if the timer finished,
     /// which means the `value()` have been changed.

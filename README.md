@@ -22,6 +22,8 @@ The game is in development.
           - [x] self is not merged
     - [x] Add movement animation
     - [x] Spawn new tile if moved
+  - [x] Tile despawning
+    - [x] Despawn merged tiles with the last level with an animation
 - [ ] Score system
   - [ ] Add score to the score system every merge
   - [ ] Highscore system
@@ -44,3 +46,4 @@ The game is in development.
     - [ ] Add an option to set the board's size
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
+  - [ ] Refactor spawn and despawn animations code duplication.

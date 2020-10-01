@@ -30,6 +30,7 @@ fn main() {
         .add_startup_system(setup.system())
         .add_system(spawn_tiles.system())
         .add_system(spawn_animation.system())
+        .add_system(despawn_animation.system())
         .add_system(moving_input.system())
         .add_system(set_moving.system())
         .add_system(moving_animation.system())
@@ -160,6 +161,18 @@ impl Default for SpawnAnimation {
     }
 }
 
+struct DespawnAnimation {
+    animation: Animation,
+}
+
+impl Default for DespawnAnimation {
+    fn default() -> Self {
+        Self {
+            animation: Animation::new(3),
+        }
+    }
+}
+
 /// Animating each tile that contains SpawnAnimation component.
 /// When the animation is finished, the SpawnAnimation component
 /// is removed from the entity.
@@ -180,6 +193,27 @@ fn spawn_animation(
     // When the animation is finished, the component is being removed.
     if spawn_anim.animation.finished() {
         commands.remove_one::<SpawnAnimation>(entity);
+    }
+}
+
+/// Despawning all tiles that have a despawn animation.
+fn despawn_animation(
+    mut commands: Commands,
+    time: Res<Time>,
+    entity: Entity,
+    mut despawn_anim: Mut<DespawnAnimation>,
+    mut sprite: Mut<Sprite>,
+) {
+    if despawn_anim.animation.update(time.delta_seconds) {
+        // Updating the sprite size while the animation is not finished.
+        let size = TILE_SIZE * despawn_anim.animation.rev_value();
+        sprite.size.set_x(size);
+        sprite.size.set_y(size);
+    }
+
+    // When the animation is finished, the entity will be despawned.
+    if despawn_anim.animation.finished() {
+        commands.despawn(entity);
     }
 }
 
@@ -246,21 +280,51 @@ fn spawn_tiles(
     }
 }
 
+/// The struct's aim is to cut the proccess of moving into
+/// small pieces with states.
 #[derive(Debug, PartialEq)]
 enum MovingState {
+    /// This is the default state, when no moving is happening.
+    /// When should move the next state is `SetMoving` with
+    /// `starting` set to `true`.
     Idle,
-    SetMoving { starting: bool },
+    /// At this state, checking which tile should move.
+    /// When done checking, if some tiles should move,
+    /// the next state is `Animating`
+    /// otherwise, the next state is `Finishing` with
+    /// `moved` set to `!starting`.
+    SetMoving {
+        /// Tells if this is the first time checking for moving tiles.
+        starting: bool,
+    },
+    /// While at this state, all the tiles that should move are
+    /// sliding in the moving direction.
+    /// When done animating, the next state is `Merging`.
     Animating,
+    /// At this state, checking each tiles that are at the same position,
+    /// Are being merged.
+    /// Then setting the next state to `SetMoving` with `starting` set to `false`.
     Merging,
-    Finishing { moved: bool },
+    /// At this state, all the tiles are at their final position.
+    /// Removing the merged compoent from the tiles and spawning a new
+    /// tile if `moved` is `true`.
+    /// When done, the next state is `Idle`.
+    Finishing {
+        /// Tells if any tile have been moved.
+        moved: bool,
+    },
 }
 
 impl Default for MovingState {
+    /// Creates an Idle moving state.
     fn default() -> Self {
         Self::Idle
     }
 }
 
+/// The direction of the movement.
+/// This is a global resource because all tiles
+/// moving to the same direction.
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum MovingDirection {
     Left,
@@ -270,6 +334,9 @@ enum MovingDirection {
 }
 
 impl MovingDirection {
+    /// Returns the new position after the movement according
+    /// to the direction.
+    /// Returns `None` if the new position is out of bounds.
     fn moved_position(&self, position: &Position) -> Option<Position> {
         match self {
             Self::Left if position.col > 0 => Some(Position {
@@ -288,21 +355,30 @@ impl MovingDirection {
                 row: position.row - 1,
                 col: position.col,
             }),
+            // If the new position is out of bounds.
             _ => None,
         }
     }
 
+    /// Returns an array sorted by the order of tiles should
+    /// be iterated when checking which tile should move.
     fn board_iteration(&self) -> [Position; 16] {
         let mut result: [Position; 16] = Default::default();
-        // let mut iter = result.iter_mut();
         let mut index = 0;
 
+        // When moving to the left, secondary is the rows
+        // because it doesn't matter which row should
+        // be checked first.
         for secondary in 0..4 {
+            // When moving to the left, primary is the columns
+            // because the order of checking does matter.
             for mut primary in 0..4 {
+                // Reversing primary.
                 if let Self::Up | Self::Right = self {
                     primary = 3 - primary;
                 }
 
+                // Saving the position in the array.
                 result[index] = match self {
                     Self::Left | Self::Right => Position {
                         row: secondary,
@@ -324,6 +400,8 @@ impl MovingDirection {
 
 impl TryFrom<&KeyCode> for MovingDirection {
     type Error = &'static str;
+
+    /// Converts the arrows and a,w,d,s keys into a direction.
     fn try_from(key: &KeyCode) -> Result<Self, Self::Error> {
         match key {
             KeyCode::Left | KeyCode::A => Ok(Self::Left),
@@ -336,6 +414,7 @@ impl TryFrom<&KeyCode> for MovingDirection {
 }
 
 impl From<MovingDirection> for Vec3 {
+    /// Converts a direction into a normalized vec3.
     fn from(direction: MovingDirection) -> Self {
         match direction {
             MovingDirection::Left => Vec3::new(-1.0, 0.0, 0.0),
@@ -346,44 +425,62 @@ impl From<MovingDirection> for Vec3 {
     }
 }
 
+/// Animating the movement of the tiles.
+/// This is a global resource because all tiles
+/// should be animated the same time.
 struct MovingAnimation {
     animation: Animation,
 }
 
 impl Default for MovingAnimation {
+    /// Sets the animation to finish after 3 updates.
     fn default() -> Self {
         Self {
-            animation: Animation::new(5),
+            animation: Animation::new(3),
         }
     }
 }
 
+/// Component to tell if a tile is moving or not.
 struct Moving;
 
+/// Component to tell if a tile has been merged or not.
 struct Merged;
 
+/// While the moving state is `Idle`, getting the input
+/// of the user.
+/// If the user pressed the arrows or a,w,d,s keys,
+/// the direction is being chosen
 fn moving_input(
     keyboard_input: Res<Input<KeyCode>>,
     mut moving_state: ResMut<MovingState>,
     mut moving_dir: ResMut<MovingDirection>,
 ) {
     if *moving_state == MovingState::Idle {
+        // Iterating through the keys that were just pressed by the user.
         for key in keyboard_input.get_just_pressed() {
+            // Checking if the keys can be converted into a direction
             if let Ok(direction) = MovingDirection::try_from(key) {
-                *moving_state = MovingState::SetMoving { starting: true };
+                // Setting the direction.
                 *moving_dir = direction;
+                // Setting the moving state to `SetMoving` with starting.
+                *moving_state = MovingState::SetMoving { starting: true };
             }
         }
     }
 }
 
+// When the moving state is `SetMoving`, it checks which tile should move.
 fn set_moving(
     mut commands: Commands,
     mut moving_state: ResMut<MovingState>,
     moving_dir: Res<MovingDirection>,
     mut tiles: Query<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>,
 ) {
+    // Checking the moving state.
     if let MovingState::SetMoving { starting } = *moving_state {
+        // Creating a board represented by a 1D array
+        // in order to check the neighbors tiles.
         let mut tiles = tiles.iter();
         let mut board: [Option<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>; 16] =
             Default::default();
@@ -392,11 +489,20 @@ fn set_moving(
             board[position.index()] = Some(tile);
         }
 
+        // Vec of all the entities that should move.
         let mut moving_entities = Vec::new();
+
+        // Iterate on the board according to the movement direction.
         for curr_pos in moving_dir.board_iteration().iter() {
+            // Checking that a tile exists in the current position.
             if let Some(curr_tile) = &board[curr_pos.index()] {
+                // Checking that the new position is not out of bounds.
                 if let Some(new_pos) = moving_dir.moved_position(curr_pos) {
+                    // Checking if the new position contains a tile.
                     if let Some(existing_tile) = &board[new_pos.index()] {
+                        // If the existing tile is moving
+                        // or has the same level while both tiles are not merged,
+                        // move the current tile.
                         if moving_entities.contains(&existing_tile.0)
                             || (curr_tile.1.level == existing_tile.1.level
                                 && curr_tile.4.is_none()
@@ -405,8 +511,7 @@ fn set_moving(
                             moving_entities.push(curr_tile.0);
                         }
                     } else {
-                        // If the new position is emtpy,
-                        // move the current tile.
+                        // If the new position is emtpy, move the current tile.
                         moving_entities.push(curr_tile.0);
                     }
                 }
@@ -415,6 +520,7 @@ fn set_moving(
 
         let moving = !moving_entities.is_empty();
 
+        // Set the tiles that should move to `Moving`.
         for entity in moving_entities {
             commands.insert_one(entity, Some(Moving));
         }
@@ -427,6 +533,7 @@ fn set_moving(
     }
 }
 
+/// While the moving state is `Animating`, animating all moving tiles.
 fn moving_animation(
     time: Res<Time>,
     mut moving_state: ResMut<MovingState>,
@@ -436,17 +543,24 @@ fn moving_animation(
     mut update_position: Query<(&mut Position, &mut Option<Moving>)>,
 ) {
     if *moving_state == MovingState::Animating {
+        // Checking if should update the transform of the tiles.
         if moving_anim.animation.update(time.delta_seconds) {
+            // For each tile that is moving, update its transform.
             for (position, mut transform, moving) in &mut animate_transform.iter() {
                 if moving.is_some() {
+                    // The amount to move from its position.
                     let translate: Vec3 = Vec3::from(*moving_dir)
                         * (TILE_SIZE + TILE_SPACING)
                         * moving_anim.animation.value();
+
+                    // update the transform.
                     transform.set_translation(Vec3::from(*position) + translate);
                 }
             }
         }
 
+        // If the animation have been finished, remove all moving and
+        // update the position component.
         if moving_anim.animation.finished() {
             for (mut position, mut moving) in &mut update_position.iter() {
                 if moving.is_some() {
@@ -461,6 +575,8 @@ fn moving_animation(
     }
 }
 
+/// When the moving state is `Merging`, it merging tiles
+/// that are in the same position.
 fn merging(
     mut commands: Commands,
     mut moving_state: ResMut<MovingState>,
@@ -474,35 +590,57 @@ fn merging(
     )>,
 ) {
     if *moving_state == MovingState::Merging {
+        // Create a board with entity and position to check
+        // if two tiles are at the same position.
         let mut board = [None; 16];
         for (entity, mut tile, position, mut merged, mut material) in &mut tiles.iter() {
+            // Check if a tile is already exists at that position.
             if let Some((existing_entity, _position)) = board[position.index()] {
-                tile.level += 1;
-                *material = materials.add(tile.color().into());
-                *merged = Some(Merged);
-
+                // Despawning the existing tile.
                 commands.despawn(existing_entity);
-            } else {
-                board[position.index()] = Some((entity, position));
+
+                // Checking that the level is not the last one.
+                if tile.level < 9 {
+                    // Updating current tile level and color.
+                    tile.level += 1;
+                    *material = materials.add(tile.color().into());
+
+                    // Setting the tile as merged.
+                    *merged = Some(Merged);
+                } else {
+                    // If the level is the last, despawn the tile with an animation.
+                    commands.remove_one::<Tile>(entity);
+                    commands.remove_one::<Position>(entity);
+                    commands.remove_one::<Option<Moving>>(entity);
+                    commands.remove_one::<Option<Merged>>(entity);
+                    commands.insert_one(entity, DespawnAnimation::default());
+                }
             }
+
+            // Move the tile into the board.
+            board[position.index()] = Some((entity, position));
         }
 
         *moving_state = MovingState::SetMoving { starting: false };
     }
 }
 
+/// When the moving state is `Finishing`, removing set all merged to `None`
+/// and spawn a new tile.
 fn finish_moving(
     mut moving_state: ResMut<MovingState>,
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
     mut merged: Query<&mut Option<Merged>>,
 ) {
     if let MovingState::Finishing { moved } = *moving_state {
+        // Setting all the merged to `None`.
         for mut merged in &mut merged.iter() {
             if merged.is_some() {
                 *merged = None;
             }
         }
 
+        // If some tiles have been moved, spawn a new tile.
         if moved {
             spawn_tile_events.send(SpawnTileEvent);
         }
