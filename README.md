@@ -24,6 +24,7 @@ The game is in development.
     - [x] Spawn new tile if moved
   - [x] Tile despawning
     - [x] Despawn merged tiles with the last level with an animation
+  - [x] Add merge animation
 - [ ] Score system
   - [ ] Add score to the score system every merge
   - [ ] Highscore system

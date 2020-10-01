@@ -12,6 +12,8 @@ const TILE_SIZE: f32 = (BOARD_SIZE * 0.85) / 4.0;
 /// The space between two tiles.
 const TILE_SPACING: f32 = (BOARD_SIZE * 0.15) / 5.0;
 
+const MERGE_SIZE: f32 = 20.0;
+
 /// Number of tiles to spawn at start.
 const STARTING_TILES: u32 = 2;
 /// The maximum level(exluded) of a spawned tile.
@@ -31,6 +33,7 @@ fn main() {
         .add_system(spawn_tiles.system())
         .add_system(spawn_animation.system())
         .add_system(despawn_animation.system())
+        .add_system(merge_animation.system())
         .add_system(moving_input.system())
         .add_system(set_moving.system())
         .add_system(moving_animation.system())
@@ -161,11 +164,13 @@ impl Default for SpawnAnimation {
     }
 }
 
+/// Component used to animate the tiles despawning.
 struct DespawnAnimation {
     animation: Animation,
 }
 
 impl Default for DespawnAnimation {
+    /// Sets the animation to finish after 3 updates.
     fn default() -> Self {
         Self {
             animation: Animation::new(3),
@@ -196,7 +201,7 @@ fn spawn_animation(
     }
 }
 
-/// Despawning all tiles that have a despawn animation.
+/// Despawning with an animation all tiles that have a despawn animation.
 fn despawn_animation(
     mut commands: Commands,
     time: Res<Time>,
@@ -607,6 +612,7 @@ fn merging(
 
                     // Setting the tile as merged.
                     *merged = Some(Merged);
+                    commands.insert_one(entity, MergeAnimation::default());
                 } else {
                     // If the level is the last, despawn the tile with an animation.
                     commands.remove_one::<Tile>(entity);
@@ -646,5 +652,42 @@ fn finish_moving(
         }
 
         *moving_state = MovingState::Idle
+    }
+}
+
+/// Component used to animate the tiles that have been merged.
+struct MergeAnimation {
+    animation: Animation,
+}
+
+impl Default for MergeAnimation {
+    /// Sets the animation to finish after 8
+    fn default() -> Self {
+        let func = |x| 4.0 * x * (1.0 - x);
+
+        Self {
+            animation: Animation::with_func(8, func),
+        }
+    }
+}
+
+/// Animating all the tiles that have been merged.
+fn merge_animation(
+    mut commands: Commands,
+    time: Res<Time>,
+    entity: Entity,
+    mut merge_anim: Mut<MergeAnimation>,
+    mut sprite: Mut<Sprite>,
+) {
+    if merge_anim.animation.update(time.delta_seconds) {
+        // Updating the sprite size while the animation is not finished.
+        let size = TILE_SIZE + MERGE_SIZE * merge_anim.animation.value();
+        sprite.size.set_x(size);
+        sprite.size.set_y(size);
+    }
+
+    // When the animation is finished, the component is being removed.
+    if merge_anim.animation.finished() {
+        commands.remove_one::<MergeAnimation>(entity);
     }
 }
