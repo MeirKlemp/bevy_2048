@@ -249,10 +249,10 @@ fn spawn_tiles(
 #[derive(Debug, PartialEq)]
 enum MovingState {
     Idle,
-    SetMoving,
+    SetMoving { starting: bool },
     Animating,
     Merging,
-    Finishing,
+    Finishing { moved: bool },
 }
 
 impl Default for MovingState {
@@ -298,43 +298,23 @@ impl MovingDirection {
         let mut index = 0;
 
         for secondary in 0..4 {
-            match self {
-                Self::Left => {
-                    for primary in 0..4 {
-                        result[index] = Position {
-                            row: secondary,
-                            col: primary,
-                        };
-                        index += 1;
-                    }
+            for mut primary in 0..4 {
+                if let Self::Up | Self::Right = self {
+                    primary = 3 - primary;
                 }
-                Self::Up => {
-                    for primary in (0..4).rev() {
-                        result[index] = Position {
-                            row: primary,
-                            col: secondary,
-                        };
-                        index += 1;
-                    }
-                }
-                Self::Right => {
-                    for primary in (0..4).rev() {
-                        result[index] = Position {
-                            row: secondary,
-                            col: primary,
-                        };
-                        index += 1;
-                    }
-                }
-                Self::Down => {
-                    for primary in 0..4 {
-                        result[index] = Position {
-                            row: primary,
-                            col: secondary,
-                        };
-                        index += 1;
-                    }
-                }
+
+                result[index] = match self {
+                    Self::Left | Self::Right => Position {
+                        row: secondary,
+                        col: primary,
+                    },
+                    Self::Up | Self::Down => Position {
+                        row: primary,
+                        col: secondary,
+                    },
+                };
+
+                index += 1;
             }
         }
 
@@ -390,7 +370,7 @@ fn moving_input(
     if *moving_state == MovingState::Idle {
         for key in keyboard_input.get_just_pressed() {
             if let Ok(direction) = MovingDirection::try_from(key) {
-                *moving_state = MovingState::SetMoving;
+                *moving_state = MovingState::SetMoving { starting: true };
                 *moving_dir = direction;
             }
         }
@@ -403,7 +383,7 @@ fn set_moving(
     moving_dir: Res<MovingDirection>,
     mut tiles: Query<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>,
 ) {
-    if *moving_state == MovingState::SetMoving {
+    if let MovingState::SetMoving { starting } = *moving_state {
         let mut tiles = tiles.iter();
         let mut board: [Option<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>; 16] =
             Default::default();
@@ -442,7 +422,7 @@ fn set_moving(
         *moving_state = if moving {
             MovingState::Animating
         } else {
-            MovingState::Finishing
+            MovingState::Finishing { moved: !starting }
         };
     }
 }
@@ -507,7 +487,7 @@ fn merging(
             }
         }
 
-        *moving_state = MovingState::SetMoving;
+        *moving_state = MovingState::SetMoving { starting: false };
     }
 }
 
@@ -516,14 +496,17 @@ fn finish_moving(
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
     mut merged: Query<&mut Option<Merged>>,
 ) {
-    if *moving_state == MovingState::Finishing {
+    if let MovingState::Finishing { moved } = *moving_state {
         for mut merged in &mut merged.iter() {
             if merged.is_some() {
                 *merged = None;
             }
         }
 
-        spawn_tile_events.send(SpawnTileEvent);
+        if moved {
+            spawn_tile_events.send(SpawnTileEvent);
+        }
+
         *moving_state = MovingState::Idle
     }
 }

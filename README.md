@@ -18,9 +18,10 @@ The game is in development.
       - [x] is not out of bounds and
         - [x] is empty or
         - [x] has a moving tile or
-          - [x] has a not-merged-tile with the same level
+          - [x] has a not-merged-tile with the same level and
           - [x] self is not merged
     - [x] Add movement animation
+    - [x] Spawn new tile if moved
 - [ ] Score system
   - [ ] Add score to the score system every merge
   - [ ] Highscore system
