@@ -15,9 +15,7 @@ const TILE_SPACING: f32 = (BOARD_SIZE * 0.15) / 5.0;
 const MERGE_SIZE: f32 = 20.0;
 
 /// Number of tiles to spawn at start.
-const STARTING_TILES: u32 = 2;
-/// The maximum level(exluded) of a spawned tile.
-const MAX_STARTING_LEVEL: u32 = 2;
+const STARTING_TILES: usize = 2;
 
 fn main() {
     App::build()
@@ -72,9 +70,9 @@ fn setup(
     }
 
     // Spawning tiles at the beginning.
-    for _ in 0..STARTING_TILES {
-        spawn_tile_events.send(SpawnTileEvent);
-    }
+    spawn_tile_events.send(SpawnTileEvent {
+        count: STARTING_TILES,
+    });
 }
 
 /// Component for saving tile level.
@@ -109,7 +107,16 @@ impl Tile {
 }
 
 /// Event for spawning new tiles.
-struct SpawnTileEvent;
+struct SpawnTileEvent {
+    count: usize,
+}
+
+impl Default for SpawnTileEvent {
+    /// Spawns 1 tile.
+    fn default() -> Self {
+        Self { count: 1 }
+    }
+}
 
 /// Event listener for SpawnTileEvent.
 #[derive(Default)]
@@ -232,55 +239,57 @@ fn spawn_tiles(
 ) {
     // Vector of empty tiles for all the iterations.
     let mut free_pos = None;
-    for _ in listener.reader.iter(&spawn_events) {
-        if free_pos.is_none() {
-            // Creating vector of empty tiles.
-            let mut vec = Vec::new();
-            for row in 0..4 {
-                for col in 0..4 {
-                    vec.push(Position { row, col });
+    for ev in listener.reader.iter(&spawn_events) {
+        for _ in 0..ev.count {
+            if free_pos.is_none() {
+                // Creating vector of empty tiles.
+                let mut vec = Vec::new();
+                for row in 0..4 {
+                    for col in 0..4 {
+                        vec.push(Position { row, col });
+                    }
                 }
+
+                // Removing the existing tiles from the vector.
+                for pos in &mut positions.iter() {
+                    if let Some(idx) = vec.iter().position(|x| *x == *pos) {
+                        vec.remove(idx);
+                    }
+                }
+
+                free_pos = Some(vec);
             }
 
-            // Removing the existing tiles from the vector.
-            for pos in &mut positions.iter() {
-                if let Some(idx) = vec.iter().position(|x| *x == *pos) {
-                    vec.remove(idx);
-                }
+            let vec = free_pos.as_mut().unwrap();
+
+            // Checking that the board is not full.
+            if vec.len() != 0 {
+                // Choosing a random empty tile.
+                let mut rng = rand::thread_rng();
+                let idx = rng.gen_range(0, vec.len());
+                let pos = vec.remove(idx);
+
+                // Choosing the new tile's level.
+                let tile = Tile {
+                    level: if rng.gen_bool(0.8) { 0 } else { 1 },
+                };
+
+                // Spawning the new tile.
+                commands
+                    .spawn(SpriteComponents {
+                        material: materials.add(tile.color().into()),
+                        transform: Transform::from_translation(pos.into()),
+                        ..Default::default()
+                    })
+                    .with(tile)
+                    .with(pos)
+                    .with(SpawnAnimation::default())
+                    .with(Option::<Moving>::None)
+                    .with(Option::<Merged>::None);
+            } else {
+                #[cfg(debug_assertions)]
+                panic!("spawn_tiles(): Tried to spawn a tile when the board was full.")
             }
-
-            free_pos = Some(vec);
-        }
-
-        let vec = free_pos.as_mut().unwrap();
-
-        // Checking that the board is not full.
-        if vec.len() != 0 {
-            // Choosing a random empty tile.
-            let mut rng = rand::thread_rng();
-            let idx = rng.gen_range(0, vec.len());
-            let pos = vec.remove(idx);
-
-            // Choosing the new tile's level.
-            let tile = Tile {
-                level: rng.gen_range(0, MAX_STARTING_LEVEL),
-            };
-
-            // Spawning the new tile.
-            commands
-                .spawn(SpriteComponents {
-                    material: materials.add(tile.color().into()),
-                    transform: Transform::from_translation(pos.into()),
-                    ..Default::default()
-                })
-                .with(tile)
-                .with(pos)
-                .with(SpawnAnimation::default())
-                .with(Option::<Moving>::None)
-                .with(Option::<Merged>::None);
-        } else {
-            #[cfg(debug_assertions)]
-            panic!("spawn_tiles(): Tried to spawn a tile when the board was full.")
         }
     }
 }
@@ -648,7 +657,7 @@ fn finish_moving(
 
         // If some tiles have been moved, spawn a new tile.
         if moved {
-            spawn_tile_events.send(SpawnTileEvent);
+            spawn_tile_events.send(SpawnTileEvent::default());
         }
 
         *moving_state = MovingState::Idle
