@@ -1,7 +1,9 @@
-use std::convert::TryFrom;
+mod animation;
 
+use animation::Animation;
 use bevy::{prelude::*, render::pass::ClearColor};
 use rand::Rng;
+use std::convert::TryFrom;
 
 /// The size of the whole board.
 const BOARD_SIZE: f32 = 500.0;
@@ -21,9 +23,8 @@ fn main() {
         .add_event::<SpawnTileEvent>()
         .init_resource::<SpawnTileListener>()
         .init_resource::<MovingState>()
+        .init_resource::<MovingAnimation>()
         .add_resource(MovingDirection::Left)
-        // Moving animation.
-        .add_resource(Animation::new(5))
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
@@ -33,6 +34,7 @@ fn main() {
         .add_system(set_moving.system())
         .add_system(moving_animation.system())
         .add_system(merging.system())
+        .add_system(finish_moving.system())
         .run();
 }
 
@@ -144,61 +146,16 @@ impl From<Position> for Vec3 {
     }
 }
 
-struct Animation {
-    timer: Timer,
-    ticks: usize,
-    max_ticks: usize,
-    finished: bool,
+/// Component used to animate the tiles spawning.
+struct SpawnAnimation {
+    animation: Animation,
 }
 
-impl Animation {
-    fn new(max_ticks: usize) -> Self {
-        Self {
-            max_ticks,
-            ..Default::default()
-        }
-    }
-
-    /// Returns a value in the range [0, 1] for the animation.
-    fn value(&self) -> f32 {
-        self.ticks as f32 / self.max_ticks as f32
-    }
-
-    /// Updates the animation, needs delta_seconds from the time resource.
-    /// Returns `true` if the timer finished,
-    /// which means the `value()` have been changed.
-    fn update(&mut self, delta_seconds: f32) -> bool {
-        if !self.finished {
-            self.timer.tick(delta_seconds);
-
-            if self.timer.finished {
-                self.ticks += 1;
-                if self.ticks >= self.max_ticks {
-                    self.finished = true;
-                }
-            }
-
-            return self.timer.finished;
-        }
-
-        false
-    }
-
-    /// Resets the animation.
-    fn reset(&mut self) {
-        self.timer.reset();
-        self.ticks = 0;
-        self.finished = false;
-    }
-}
-
-impl Default for Animation {
+impl Default for SpawnAnimation {
+    /// Sets the animation to finish after 3 updates.
     fn default() -> Self {
         Self {
-            timer: Timer::from_seconds(1.0 / 60.0, true),
-            ticks: 0,
-            max_ticks: 10,
-            finished: false,
+            animation: Animation::new(3),
         }
     }
 }
@@ -210,19 +167,19 @@ fn spawn_animation(
     mut commands: Commands,
     time: Res<Time>,
     entity: Entity,
-    mut animation: Mut<Animation>,
+    mut spawn_anim: Mut<SpawnAnimation>,
     mut sprite: Mut<Sprite>,
 ) {
-    if animation.update(time.delta_seconds) {
+    if spawn_anim.animation.update(time.delta_seconds) {
         // Updating the sprite size while the animation is not finished.
-        let size = TILE_SIZE * animation.value();
+        let size = TILE_SIZE * spawn_anim.animation.value();
         sprite.size.set_x(size);
         sprite.size.set_y(size);
     }
 
     // When the animation is finished, the component is being removed.
-    if animation.finished {
-        commands.remove_one::<Animation>(entity);
+    if spawn_anim.animation.finished() {
+        commands.remove_one::<SpawnAnimation>(entity);
     }
 }
 
@@ -279,7 +236,7 @@ fn spawn_tiles(
                 })
                 .with(tile)
                 .with(pos)
-                .with(Animation::new(3))
+                .with(SpawnAnimation::default())
                 .with(Option::<Moving>::None)
                 .with(Option::<Merged>::None);
         } else {
@@ -295,6 +252,7 @@ enum MovingState {
     SetMoving,
     Animating,
     Merging,
+    Finishing,
 }
 
 impl Default for MovingState {
@@ -408,6 +366,18 @@ impl From<MovingDirection> for Vec3 {
     }
 }
 
+struct MovingAnimation {
+    animation: Animation,
+}
+
+impl Default for MovingAnimation {
+    fn default() -> Self {
+        Self {
+            animation: Animation::new(5),
+        }
+    }
+}
+
 struct Moving;
 
 struct Merged;
@@ -431,9 +401,7 @@ fn set_moving(
     mut commands: Commands,
     mut moving_state: ResMut<MovingState>,
     moving_dir: Res<MovingDirection>,
-    mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
     mut tiles: Query<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>,
-    mut merged: Query<(Entity, &Option<Merged>)>,
 ) {
     if *moving_state == MovingState::SetMoving {
         let mut tiles = tiles.iter();
@@ -441,9 +409,6 @@ fn set_moving(
             Default::default();
         for tile in &mut tiles {
             let position = tile.2;
-            if tile.3.is_some() {
-                println!("Should not move!");
-            }
             board[position.index()] = Some(tile);
         }
 
@@ -454,6 +419,7 @@ fn set_moving(
                     if let Some(existing_tile) = &board[new_pos.index()] {
                         if moving_entities.contains(&existing_tile.0)
                             || (curr_tile.1.level == existing_tile.1.level
+                                && curr_tile.4.is_none()
                                 && existing_tile.4.is_none())
                         {
                             moving_entities.push(curr_tile.0);
@@ -476,47 +442,40 @@ fn set_moving(
         *moving_state = if moving {
             MovingState::Animating
         } else {
-            for (entity, merged) in &mut merged.iter() {
-                if merged.is_some() {
-                    commands.insert_one(entity, Option::<Merged>::None);
-                }
-            }
-
-            spawn_tile_events.send(SpawnTileEvent);
-            MovingState::Idle
+            MovingState::Finishing
         };
     }
 }
 
 fn moving_animation(
-    mut commands: Commands,
     time: Res<Time>,
     mut moving_state: ResMut<MovingState>,
-    mut moving_anim: ResMut<Animation>,
+    mut moving_anim: ResMut<MovingAnimation>,
     moving_dir: Res<MovingDirection>,
     mut animate_transform: Query<(&Position, &mut Transform, &Option<Moving>)>,
-    mut update_position: Query<(Entity, &mut Position, &Option<Moving>)>,
+    mut update_position: Query<(&mut Position, &mut Option<Moving>)>,
 ) {
     if *moving_state == MovingState::Animating {
-        if moving_anim.update(time.delta_seconds) {
+        if moving_anim.animation.update(time.delta_seconds) {
             for (position, mut transform, moving) in &mut animate_transform.iter() {
                 if moving.is_some() {
-                    let translate: Vec3 =
-                        Vec3::from(*moving_dir) * (TILE_SIZE + TILE_SPACING) * moving_anim.value();
+                    let translate: Vec3 = Vec3::from(*moving_dir)
+                        * (TILE_SIZE + TILE_SPACING)
+                        * moving_anim.animation.value();
                     transform.set_translation(Vec3::from(*position) + translate);
                 }
             }
         }
 
-        if moving_anim.finished {
-            for (entity, mut position, moving) in &mut update_position.iter() {
+        if moving_anim.animation.finished() {
+            for (mut position, mut moving) in &mut update_position.iter() {
                 if moving.is_some() {
                     *position = moving_dir.moved_position(&position).unwrap();
-                    commands.insert_one(entity, Option::<Moving>::None);
+                    *moving = None;
                 }
             }
 
-            moving_anim.reset();
+            moving_anim.animation.reset();
             *moving_state = MovingState::Merging;
         }
     }
@@ -526,22 +485,45 @@ fn merging(
     mut commands: Commands,
     mut moving_state: ResMut<MovingState>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut tiles: Query<(Entity, &mut Tile, &Position, &mut Handle<ColorMaterial>)>,
+    mut tiles: Query<(
+        Entity,
+        &mut Tile,
+        &Position,
+        &mut Option<Merged>,
+        &mut Handle<ColorMaterial>,
+    )>,
 ) {
     if *moving_state == MovingState::Merging {
         let mut board = [None; 16];
-        for (entity, mut tile, position, mut material) in &mut tiles.iter() {
+        for (entity, mut tile, position, mut merged, mut material) in &mut tiles.iter() {
             if let Some((existing_entity, _position)) = board[position.index()] {
                 tile.level += 1;
                 *material = materials.add(tile.color().into());
+                *merged = Some(Merged);
 
                 commands.despawn(existing_entity);
-                commands.insert_one(entity, Some(Merged));
             } else {
                 board[position.index()] = Some((entity, position));
             }
         }
 
         *moving_state = MovingState::SetMoving;
+    }
+}
+
+fn finish_moving(
+    mut moving_state: ResMut<MovingState>,
+    mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
+    mut merged: Query<&mut Option<Merged>>,
+) {
+    if *moving_state == MovingState::Finishing {
+        for mut merged in &mut merged.iter() {
+            if merged.is_some() {
+                *merged = None;
+            }
+        }
+
+        spawn_tile_events.send(SpawnTileEvent);
+        *moving_state = MovingState::Idle
     }
 }

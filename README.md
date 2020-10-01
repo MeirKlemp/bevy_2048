@@ -16,21 +16,30 @@ The game is in development.
     - [x] Handle the keys input
     - [x] Move tiles only if the new position:
       - [x] is not out of bounds and
-      - [x] is empty or
-      - [x] has a moving tile or
-      - [x] has a not-merged-tile with the same level
+        - [x] is empty or
+        - [x] has a moving tile or
+          - [x] has a not-merged-tile with the same level
+          - [x] self is not merged
     - [x] Add movement animation
 - [ ] Score system
   - [ ] Add score to the score system every merge
   - [ ] Highscore system
     - [ ] Every end game save the highscore
     - [ ] Save the highscore in a file
+- [ ] Game Over
+  - [ ] When not available moves
+  - [ ] When merged two tiles with the last color
 - [ ] Interface
   - [ ] Add score label
   - [ ] Add highscore label
   - [ ] Add new game button
   - [ ] Add a title
+  - [ ] Add game over screen
   - [ ] Add a link to this repo and bevy repo
+  - [ ] Add how to play explanation
   - [ ] Add explanation of the tiles' colors
+    - [ ] Make each color to be revealed when getting to the color in the game
+  - [ ] Options
+    - [ ] Add an option to set the board's size
 - [ ] Polish
-  - [ ] Remove the usage of commands for changing components' values(too slow)
+  - [x] Remove the usage of commands for changing components' values(too slow)
