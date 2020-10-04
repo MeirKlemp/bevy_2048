@@ -1,0 +1,29 @@
+use bevy::prelude::*;
+
+use crate::tile_spawning::SpawnTileEvent;
+
+use super::{Merged, MovingState};
+
+/// When the moving state is `Finishing`, removing set all merged to `None`
+/// and spawn a new tile.
+pub fn finish_moving(
+    mut moving_state: ResMut<MovingState>,
+    mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
+    mut merged: Query<&mut Option<Merged>>,
+) {
+    if let MovingState::Finishing { moved } = *moving_state {
+        // Setting all the merged to `None`.
+        for mut merged in &mut merged.iter() {
+            if merged.is_some() {
+                *merged = None;
+            }
+        }
+
+        // If some tiles have been moved, spawn a new tile.
+        if moved {
+            spawn_tile_events.send(SpawnTileEvent::default());
+        }
+
+        *moving_state = MovingState::Idle
+    }
+}

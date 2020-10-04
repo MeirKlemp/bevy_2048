@@ -26,7 +26,7 @@ The game is in development.
     - [x] Despawn merged tiles with the last level with an animation
   - [x] Add merge animation
 - [ ] Score system
-  - [ ] Add score to the score system every merge
+  - [x] Add score to the score system every merge
   - [ ] Highscore system
     - [ ] Every end game save the highscore
     - [ ] Save the highscore in a file
@@ -47,4 +47,5 @@ The game is in development.
     - [ ] Add an option to set the board's size
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
+  - [x] Separate the project into files.
   - [ ] Refactor spawn and despawn animations code duplication.
