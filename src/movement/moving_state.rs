@@ -31,6 +31,8 @@ pub enum MovingState {
         /// Tells if any tile have been moved.
         moved: bool,
     },
+
+    CheckingMoveable,
 }
 
 impl Default for MovingState {

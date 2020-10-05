@@ -20,10 +20,11 @@ pub fn finish_moving(
         }
 
         // If some tiles have been moved, spawn a new tile.
-        if moved {
+        *moving_state = if moved {
             spawn_tile_events.send(SpawnTileEvent::default());
+            MovingState::CheckingMoveable
+        } else {
+            MovingState::Idle
         }
-
-        *moving_state = MovingState::Idle
     }
 }

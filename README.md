@@ -28,11 +28,10 @@ The game is in development.
 - [ ] Score system
   - [x] Add score to the score system every merge
   - [ ] Highscore system
-    - [ ] Every end game save the highscore
+    - [ ] Check for highscore every score
     - [ ] Save the highscore in a file
-- [ ] Game Over
-  - [ ] When not available moves
-  - [ ] When merged two tiles with the last color
+- [x] Game Over
+  - [x] When not available moves
 - [ ] Interface
   - [ ] Add score label
   - [ ] Add highscore label
@@ -49,3 +48,4 @@ The game is in development.
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files.
   - [ ] Refactor spawn and despawn animations code duplication.
+  - [ ] Refactor moveable check(gameover).

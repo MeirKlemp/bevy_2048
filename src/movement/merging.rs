@@ -1,12 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{
-    components::{Position, Tile},
-    score::Score,
-    tile_spawning::DespawnAnimation,
-};
+use crate::{components::{Position, Tile}, score::Score, tile_spawning::Despawn};
 
-use super::{MergeAnimation, Merged, Moving, MovingState};
+use super::{MergeAnimation, Merged, MovingState};
 
 /// When the moving state is `Merging`, it merging tiles
 /// that are in the same position.
@@ -47,11 +43,7 @@ pub fn merging(
                     commands.insert_one(entity, MergeAnimation::default());
                 } else {
                     // If the level is the last, despawn the tile with an animation.
-                    commands.remove_one::<Tile>(entity);
-                    commands.remove_one::<Position>(entity);
-                    commands.remove_one::<Option<Moving>>(entity);
-                    commands.remove_one::<Option<Merged>>(entity);
-                    commands.insert_one(entity, DespawnAnimation::default());
+                    commands.insert_one(entity, Despawn);
                 }
             }
 

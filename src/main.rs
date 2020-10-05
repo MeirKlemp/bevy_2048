@@ -4,10 +4,10 @@ mod score;
 mod tile_spawning;
 
 use bevy::{prelude::*, render::pass::ClearColor};
-use components::Position;
+use components::{GameState, Position, Tile};
 use movement::MovementPlugin;
 use score::{Score, ScorePlugin};
-use tile_spawning::{SpawnTileEvent, SpawnTilePlugin};
+use tile_spawning::{Despawn, SpawnTileEvent, SpawnTilePlugin};
 
 /// The size of the whole board.
 pub const BOARD_SIZE: f32 = 500.0;
@@ -27,10 +27,12 @@ fn main() {
         .add_plugin(SpawnTilePlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(ScorePlugin)
+        .init_resource::<GameState>()
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
         .add_system(score_text.system())
+        .add_system(new_game.system())
         .run();
 }
 
@@ -95,6 +97,38 @@ fn setup(
 struct ScoreText;
 
 /// Updating the score text according to the score.
-fn score_text(score: Res<Score>, mut text: Mut<Text>, _scoretext: &ScoreText) {
-    text.value = format!("Score: {}", score.0);
+fn score_text(
+    game_state: Res<GameState>,
+    score: Res<Score>,
+    mut text: Mut<Text>,
+    _scoretext: &ScoreText,
+) {
+    text.value = if *game_state == GameState::GameOver {
+        format!("Score: {}, Game Over... Press SPACE for new game", score.0)
+    } else {
+        format!("Score: {}", score.0)
+    }
+}
+
+fn new_game(
+    mut commands: Commands,
+    mut game_state: ResMut<GameState>,
+    mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
+    mut score: ResMut<Score>,
+    keyboard: Res<Input<KeyCode>>,
+    mut tiles: Query<With<Tile, Entity>>,
+) {
+    if *game_state == GameState::GameOver {
+        if keyboard.just_pressed(KeyCode::Space) {
+            for entity in &mut tiles.iter() {
+                commands.insert_one(entity, Despawn);
+            }
+
+            spawn_tile_events.send(SpawnTileEvent {
+                count: STARTING_TILES,
+            });
+            score.0 = 0;
+            *game_state = GameState::Play;
+        }
+    }
 }

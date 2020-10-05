@@ -6,6 +6,7 @@ mod moving_direction;
 mod moving_input;
 mod moving_state;
 mod set_moving;
+mod check_moveable;
 
 pub use merge_animation::MergeAnimation;
 pub use moving_animation::MovingAnimation;
@@ -30,6 +31,7 @@ impl Plugin for MovementPlugin {
             .add_system(moving_animation::moving_animation.system())
             .add_system(merging::merging.system())
             .add_system(merge_animation::merge_animation.system())
-            .add_system(finish_moving::finish_moving.system());
+            .add_system(finish_moving::finish_moving.system())
+            .add_system(check_moveable::check_moveable.system());
     }
 }
