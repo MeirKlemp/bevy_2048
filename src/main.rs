@@ -6,8 +6,11 @@ mod tile_spawning;
 use bevy::{prelude::*, render::pass::ClearColor};
 use components::{GameState, Position, Tile};
 use movement::MovementPlugin;
-use score::{Score, ScorePlugin};
+use score::{HighScore, Score, ScorePlugin};
 use tile_spawning::{Despawn, SpawnTileEvent, SpawnTilePlugin};
+
+#[macro_use]
+extern crate savefile_derive;
 
 /// The size of the whole board.
 pub const BOARD_SIZE: f32 = 500.0;
@@ -62,7 +65,7 @@ fn setup(
                 ..Default::default()
             },
             text: Text {
-                value: "Score: 0".to_string(),
+                value: "Best: 0, Score: 0".to_string(),
                 font: font_handle,
                 style: TextStyle {
                     font_size: 36.0,
@@ -99,14 +102,18 @@ struct ScoreText;
 /// Updating the score text according to the score.
 fn score_text(
     game_state: Res<GameState>,
+    highscore: Res<HighScore>,
     score: Res<Score>,
     mut text: Mut<Text>,
-    _scoretext: &ScoreText,
+    _: &ScoreText,
 ) {
     text.value = if *game_state == GameState::GameOver {
-        format!("Score: {}, Game Over... Press SPACE for new game", score.0)
+        format!(
+            "Best: {}, Score: {}, Game Over... Press SPACE for new game",
+            highscore.0, score.0
+        )
     } else {
-        format!("Score: {}", score.0)
+        format!("Best: {}, Score: {}", highscore.0, score.0)
     }
 }
 
@@ -127,6 +134,7 @@ fn new_game(
             spawn_tile_events.send(SpawnTileEvent {
                 count: STARTING_TILES,
             });
+
             score.0 = 0;
             *game_state = GameState::Play;
         }

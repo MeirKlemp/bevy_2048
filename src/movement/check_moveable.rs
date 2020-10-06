@@ -48,9 +48,7 @@ pub fn check_moveable(
                 }
             }
 
-            if len != 15 {
-                *moving_state = MovingState::Idle;
-            }
+            *moving_state = MovingState::Idle;
         }
     }
 }

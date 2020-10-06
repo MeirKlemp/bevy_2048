@@ -25,11 +25,11 @@ The game is in development.
   - [x] Tile despawning
     - [x] Despawn merged tiles with the last level with an animation
   - [x] Add merge animation
-- [ ] Score system
+- [x] Score system
   - [x] Add score to the score system every merge
-  - [ ] Highscore system
-    - [ ] Check for highscore every score
-    - [ ] Save the highscore in a file
+  - [x] Highscore system
+    - [x] Check for highscore every score
+    - [x] Save the highscore in a file
 - [x] Game Over
   - [x] When not available moves
 - [ ] Interface
@@ -48,4 +48,3 @@ The game is in development.
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files.
   - [ ] Refactor spawn and despawn animations code duplication.
-  - [ ] Refactor moveable check(gameover).

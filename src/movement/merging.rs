@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{components::{Position, Tile}, score::Score, tile_spawning::Despawn};
+use crate::{
+    components::{Position, Tile},
+    score::Score,
+    tile_spawning::Despawn,
+};
 
 use super::{MergeAnimation, Merged, MovingState};
 
