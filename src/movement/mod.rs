@@ -1,3 +1,5 @@
+//! This module contains the impl of the systems and components in order to move the tiles.
+
 mod check_moveable;
 mod finish_moving;
 mod merge_animation;
@@ -32,6 +34,7 @@ impl Plugin for MovementPlugin {
             .add_system(merging::merging.system())
             .add_system(merge_animation::merge_animation.system())
             .add_system(finish_moving::finish_moving.system())
+            // This system should run after the new tile have spawned.
             .add_system_to_stage(
                 crate::tile_spawning::AFTER_SPAWN_STAGE,
                 check_moveable::check_moveable.system(),

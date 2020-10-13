@@ -1,3 +1,5 @@
+//! This module contains the impl for the Finishing state's system.
+
 use bevy::prelude::*;
 
 use crate::tile_spawning::SpawnTileEvent;

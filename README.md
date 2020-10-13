@@ -47,4 +47,4 @@ The game is in development.
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files.
-  - [ ] Refactor spawn and despawn animations code duplication.
+  - [ ] Cache best.bin file directory at start.

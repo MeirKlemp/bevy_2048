@@ -1,12 +1,17 @@
+//! This module contains the impl of the components and the plugin for the score system.
+
+use bevy::prelude::*;
+
 mod highscore;
 pub use highscore::HighScore;
 
+/// This struct saves the score of the current game.
 pub struct Score(pub u32);
 
-use bevy::prelude::*;
-pub struct ScorePlugin;
+/// This plugin builds the score system into the app.
+pub struct ScoreSystemPlugin;
 
-impl Plugin for ScorePlugin {
+impl Plugin for ScoreSystemPlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
         app.init_resource::<HighScore>()
             .add_resource(Score(0))

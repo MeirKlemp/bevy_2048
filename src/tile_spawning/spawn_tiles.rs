@@ -1,3 +1,5 @@
+//! This module cotains the impl of the SpawnTile event, reader and system.
+
 use crate::components::{Position, Tile};
 use crate::movement::{Merged, Moving};
 use bevy::prelude::*;

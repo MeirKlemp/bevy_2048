@@ -1,3 +1,5 @@
+//! This module contains the impl of the Merging state's system.
+
 use bevy::prelude::*;
 
 use crate::{

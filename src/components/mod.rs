@@ -1,3 +1,5 @@
+//! This module contains impl of common components.
+
 mod animation;
 pub use animation::Animation;
 

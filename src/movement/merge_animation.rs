@@ -1,3 +1,5 @@
+//! This module contains the impl of the MergeAnimation component and system.
+
 use crate::components::Animation;
 use bevy::prelude::*;
 

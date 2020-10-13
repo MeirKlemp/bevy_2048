@@ -1,3 +1,4 @@
+//! This module contains the impl of the SpawnAnimation component and its system.
 use crate::components::Animation;
 use bevy::prelude::*;
 

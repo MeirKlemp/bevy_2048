@@ -1,9 +1,13 @@
+//! This module contians the impl for the CheckingMoveable state's system.
+
 use bevy::prelude::*;
 
 use crate::components::{GameState, Position, Tile};
 
 use super::MovingState;
 
+/// When the moving state is `CheckingMoveable`, checking if it is a gameover
+/// by looking if there are tiles that can move.
 pub fn check_moveable(
     mut game_state: ResMut<GameState>,
     mut moving_state: ResMut<MovingState>,
@@ -11,8 +15,10 @@ pub fn check_moveable(
 ) {
     if *game_state == GameState::Play {
         if *moving_state == MovingState::CheckingMoveable {
+            // Checking if the board is full.
             let len = tiles.iter().iter().len();
             if len == 16 {
+                // Creating a 1d array board.
                 let mut iter = tiles.iter();
                 let null_tile = Tile { level: 0 };
                 let mut board = [&null_tile; 16];
@@ -20,6 +26,7 @@ pub fn check_moveable(
                     board[position.index()] = tile;
                 }
 
+                // Checking if there are some neighbor tiles with the same level.
                 let mut gameover = true;
                 for row in 0..4 {
                     for col in 0..4 {

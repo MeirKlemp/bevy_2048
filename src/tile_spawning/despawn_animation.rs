@@ -1,3 +1,5 @@
+//! This module contains the impl of the DespawnAnimation and its system.
+
 use crate::components::Animation;
 use bevy::prelude::*;
 

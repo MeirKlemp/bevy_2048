@@ -1,3 +1,4 @@
+//! This module contains the impl of the moving_input system.
 use bevy::prelude::*;
 use std::convert::TryFrom;
 

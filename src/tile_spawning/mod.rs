@@ -1,3 +1,6 @@
+//! This modlue contains the spawn tile event, despawn tile component, spawn/despawn animations
+//! and a plugin for adding all of this into the application.
+
 mod despawn_animation;
 mod despawn_tiles;
 mod spawn_animation;
@@ -9,11 +12,13 @@ pub use spawn_animation::SpawnAnimation;
 pub use spawn_tiles::SpawnTileEvent;
 pub use spawn_tiles::SpawnTileListener;
 
+// Stages for running the systems in the right order.
 pub static DESPAWN_STAGE: &str = "DESPAWN";
 pub static SPAWN_STAGE: &str = "SPAWN";
 pub static AFTER_SPAWN_STAGE: &str = "AFTER-SPAWN";
 
 use bevy::prelude::*;
+/// This plugin builds the tile spawing/despawning into the application.
 pub struct SpawnTilePlugin;
 
 impl Plugin for SpawnTilePlugin {

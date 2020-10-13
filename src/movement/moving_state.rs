@@ -1,3 +1,5 @@
+//! This module contains the impl of the MovingState component.
+
 /// The struct's aim is to cut the proccess of moving into
 /// small pieces with states.
 #[derive(Debug, PartialEq)]
@@ -26,12 +28,14 @@ pub enum MovingState {
     /// At this state, all the tiles are at their final position.
     /// Removing the merged compoent from the tiles and spawning a new
     /// tile if `moved` is `true`.
-    /// When done, the next state is `Idle`.
+    /// When done, the next state is `CheckingMoveable`.
     Finishing {
         /// Tells if any tile have been moved.
         moved: bool,
     },
-
+    /// At this state, the movement is already done.
+    /// Checking if there are no moves and the game is over.
+    /// When done the next state is `Idle`.
     CheckingMoveable,
 }
 

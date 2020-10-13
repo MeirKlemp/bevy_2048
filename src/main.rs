@@ -6,7 +6,7 @@ mod tile_spawning;
 use bevy::{prelude::*, render::pass::ClearColor};
 use components::{GameState, Position, Tile};
 use movement::MovementPlugin;
-use score::{HighScore, Score, ScorePlugin};
+use score::{HighScore, Score, ScoreSystemPlugin};
 use tile_spawning::{Despawn, SpawnTileEvent, SpawnTilePlugin};
 
 #[macro_use]
@@ -29,7 +29,7 @@ fn main() {
         .add_default_plugins()
         .add_plugin(SpawnTilePlugin)
         .add_plugin(MovementPlugin)
-        .add_plugin(ScorePlugin)
+        .add_plugin(ScoreSystemPlugin)
         .init_resource::<GameState>()
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
