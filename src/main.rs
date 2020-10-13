@@ -2,12 +2,14 @@ mod components;
 mod movement;
 mod score;
 mod tile_spawning;
+mod ui;
 
 use bevy::{prelude::*, render::pass::ClearColor};
 use components::{GameState, Position, Tile};
 use movement::MovementPlugin;
-use score::{HighScore, Score, ScoreSystemPlugin};
+use score::{Score, ScoreSystemPlugin};
 use tile_spawning::{Despawn, SpawnTileEvent, SpawnTilePlugin};
+use ui::UiPlugin;
 
 #[macro_use]
 extern crate savefile_derive;
@@ -30,11 +32,11 @@ fn main() {
         .add_plugin(SpawnTilePlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(ScoreSystemPlugin)
+        .add_plugin(UiPlugin)
         .init_resource::<GameState>()
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
-        .add_system(score_text.system())
         .add_system(new_game.system())
         .run();
 }
@@ -43,39 +45,16 @@ fn setup(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
-    assets: Res<AssetServer>,
 ) {
-    // Loading the font.
-    let font_handle = assets.load("assets/fonts/FiraSans-Bold.ttf").unwrap();
-
     commands
         // Cameras.
         .spawn(Camera2dComponents::default())
-        .spawn(UiCameraComponents::default())
         // Board background.
         .spawn(SpriteComponents {
             material: materials.add(Color::rgb_u8(119, 110, 101).into()),
             sprite: Sprite::new(Vec2::new(BOARD_SIZE, BOARD_SIZE)),
             ..Default::default()
-        })
-        // Score text.
-        .spawn(TextComponents {
-            style: Style {
-                align_self: AlignSelf::FlexEnd,
-                ..Default::default()
-            },
-            text: Text {
-                value: "Best: 0, Score: 0".to_string(),
-                font: font_handle,
-                style: TextStyle {
-                    font_size: 36.0,
-                    color: Color::BLACK,
-                },
-                ..Default::default()
-            },
-            ..Default::default()
-        })
-        .with(ScoreText);
+        });
 
     // Creating a grid of empty tiles.
     for row in 0..4 {
@@ -95,26 +74,6 @@ fn setup(
     spawn_tile_events.send(SpawnTileEvent {
         count: STARTING_TILES,
     });
-}
-
-struct ScoreText;
-
-/// Updating the score text according to the score.
-fn score_text(
-    game_state: Res<GameState>,
-    highscore: Res<HighScore>,
-    score: Res<Score>,
-    mut text: Mut<Text>,
-    _: &ScoreText,
-) {
-    text.value = if *game_state == GameState::GameOver {
-        format!(
-            "Best: {}, Score: {}, Game Over... Press SPACE for new game",
-            highscore.0, score.0
-        )
-    } else {
-        format!("Best: {}, Score: {}", highscore.0, score.0)
-    }
 }
 
 fn new_game(
