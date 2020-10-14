@@ -33,9 +33,9 @@ The game is in development.
 - [x] Game Over
   - [x] When not available moves
 - [ ] Interface
-  - [ ] Add score label
-  - [ ] Add highscore label
-  - [ ] Add new game button
+  - [x] Add score label
+  - [x] Add highscore label
+  - [x] Add new game button
   - [ ] Add a title
   - [ ] Add game over screen
   - [ ] Add a link to this repo and bevy repo

@@ -3,7 +3,7 @@ mod new_game_button;
 
 use bevy::prelude::*;
 use new_game_button::NewGameButtonMaterials;
-/// This plugin builds the score system into the app.
+/// This plugin builds the ui system into the app.
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {

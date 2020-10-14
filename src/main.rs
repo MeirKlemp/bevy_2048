@@ -38,6 +38,7 @@ fn main() {
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
         .add_system(new_game.system())
+        .add_system(space_new_game.system())
         .run();
 }
 
@@ -81,21 +82,24 @@ fn new_game(
     mut game_state: ResMut<GameState>,
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
     mut score: ResMut<Score>,
-    keyboard: Res<Input<KeyCode>>,
     mut tiles: Query<With<Tile, Entity>>,
 ) {
-    if *game_state == GameState::GameOver {
-        if keyboard.just_pressed(KeyCode::Space) {
-            for entity in &mut tiles.iter() {
-                commands.insert_one(entity, Despawn);
-            }
-
-            spawn_tile_events.send(SpawnTileEvent {
-                count: STARTING_TILES,
-            });
-
-            score.0 = 0;
-            *game_state = GameState::Play;
+    if *game_state == GameState::Restarting {
+        for entity in &mut tiles.iter() {
+            commands.insert_one(entity, Despawn);
         }
+
+        spawn_tile_events.send(SpawnTileEvent {
+            count: STARTING_TILES,
+        });
+
+        score.0 = 0;
+        *game_state = GameState::Play;
+    }
+}
+
+fn space_new_game(mut game_state: ResMut<GameState>, keyboard: Res<Input<KeyCode>>) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        *game_state = GameState::Restarting;
     }
 }

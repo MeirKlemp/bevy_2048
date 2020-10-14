@@ -30,7 +30,7 @@ pub fn spawn_score_text(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: materials.add(Color::rgb_u8(119, 110, 101).into()),
+            material: materials.add(Color::rgb_u8(40, 40, 40).into()),
             ..Default::default()
         })
         .with_children(|parent| {
@@ -71,7 +71,7 @@ pub fn spawn_highscore_text(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: materials.add(Color::rgb_u8(119, 110, 101).into()),
+            material: materials.add(Color::rgb_u8(40, 40, 40).into()),
             ..Default::default()
         })
         .with_children(|parent| {

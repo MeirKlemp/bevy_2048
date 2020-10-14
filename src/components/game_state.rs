@@ -5,6 +5,7 @@
 pub enum GameState {
     Play,
     GameOver,
+    Restarting,
 }
 
 impl Default for GameState {
