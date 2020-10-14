@@ -1,4 +1,4 @@
-//! This module contains the impl for the SetMoving state's system.
+//! This module contains the impl of the SetMoving state's system.
 
 use crate::{components::Position, components::Tile};
 use bevy::prelude::*;

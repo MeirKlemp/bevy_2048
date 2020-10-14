@@ -36,15 +36,17 @@ The game is in development.
   - [x] Add score label
   - [x] Add highscore label
   - [x] Add new game button
-  - [ ] Add a title
+  - [x] Add a title
+  - [x] Add how to play explanation
   - [ ] Add game over screen
   - [ ] Add a link to this repo and bevy repo
-  - [ ] Add how to play explanation
   - [ ] Add explanation of the tiles' colors
     - [ ] Make each color to be revealed when getting to the color in the game
   - [ ] Options
     - [ ] Add an option to set the board's size
+  - [ ] Add an option to hide the interface
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
-  - [x] Separate the project into files.
-  - [ ] Cache best.bin file directory at start.
+  - [x] Separate the project into files
+  - [ ] Cache best.bin file directory at start
+  - [ ] When moving while animating save the next direction.

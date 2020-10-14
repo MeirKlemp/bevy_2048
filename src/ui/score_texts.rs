@@ -42,7 +42,7 @@ pub fn spawn_score_text(
                         value: "Score: 0".to_string(),
                         font: font_handle,
                         style: TextStyle {
-                            font_size: 30.0,
+                            font_size: 40.0,
                             color: Color::WHITE,
                         },
                     },
@@ -83,7 +83,7 @@ pub fn spawn_highscore_text(
                         value: "Best: 0".to_string(),
                         font: font_handle,
                         style: TextStyle {
-                            font_size: 30.0,
+                            font_size: 40.0,
                             color: Color::WHITE,
                         },
                     },

@@ -101,7 +101,7 @@ pub fn spawn_new_game_button(
                     value: "New Game".to_string(),
                     font: font_handle,
                     style: TextStyle {
-                        font_size: 30.0,
+                        font_size: 40.0,
                         color: Color::WHITE,
                     },
                 },

@@ -1,4 +1,4 @@
-//! This module contians the impl for the CheckingMoveable state's system.
+//! This module contians the impl of the CheckingMoveable state's system.
 
 use bevy::prelude::*;
 
