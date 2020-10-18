@@ -31,7 +31,7 @@ pub fn moving_animation(
     mut animate_transform: Query<(&Position, &mut Transform, &Option<Moving>)>,
     mut update_position: Query<(&mut Position, &mut Option<Moving>)>,
 ) {
-    if *moving_state == MovingState::Animating {
+    if matches!(*moving_state, MovingState::Animating) {
         // Checking if should update the transform of the tiles.
         if moving_anim.animation.update(time.delta_seconds) {
             // For each tile that is moving, update its transform.

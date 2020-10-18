@@ -1,7 +1,7 @@
 //! This module contains the impl of the enum GameState.
 
 // This enum tells in what state the game is in.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum GameState {
     Play,
     GameOver,

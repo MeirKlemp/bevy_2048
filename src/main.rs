@@ -84,7 +84,7 @@ fn new_game(
     mut score: ResMut<Score>,
     mut tiles: Query<With<Tile, Entity>>,
 ) {
-    if *game_state == GameState::Restarting {
+    if matches!(*game_state, GameState::Restarting) {
         for entity in &mut tiles.iter() {
             commands.insert_one(entity, Despawn);
         }

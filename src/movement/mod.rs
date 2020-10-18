@@ -27,8 +27,10 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
         app.init_resource::<MovingAnimation>()
             .init_resource::<MovingState>()
+            .init_resource::<Option<MovingDirection>>()
             .add_resource(MovingDirection::Left)
             .add_system(moving_input::moving_input.system())
+            .add_system(moving_input::next_direction.system())
             .add_system(set_moving::set_moving.system())
             .add_system(moving_animation::moving_animation.system())
             .add_system(merging::merging.system())

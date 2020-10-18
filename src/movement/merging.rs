@@ -25,7 +25,7 @@ pub fn merging(
         &mut Handle<ColorMaterial>,
     )>,
 ) {
-    if *moving_state == MovingState::Merging {
+    if matches!(*moving_state, MovingState::Merging) {
         // Create a board with entity and position to check
         // if two tiles are at the same position.
         let mut board = [None; 16];

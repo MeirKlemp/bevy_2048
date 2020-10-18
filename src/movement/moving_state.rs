@@ -2,7 +2,7 @@
 
 /// The struct's aim is to cut the proccess of moving into
 /// small pieces with states.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum MovingState {
     /// This is the default state, when no moving is happening.
     /// When should move the next state is `SetMoving` with

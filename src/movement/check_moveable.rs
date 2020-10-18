@@ -13,8 +13,8 @@ pub fn check_moveable(
     mut moving_state: ResMut<MovingState>,
     mut tiles: Query<(&Tile, &Position)>,
 ) {
-    if *game_state == GameState::Play {
-        if *moving_state == MovingState::CheckingMoveable {
+    if matches!(*game_state, GameState::Play) {
+        if matches!(*moving_state, MovingState::CheckingMoveable) {
             // Checking if the board is full.
             let len = tiles.iter().iter().len();
             if len == 16 {

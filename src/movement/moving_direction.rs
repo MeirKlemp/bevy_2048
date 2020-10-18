@@ -6,7 +6,7 @@ use std::convert::TryFrom;
 /// The direction of the movement.
 /// This is a global resource because all tiles
 /// moving to the same direction.
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum MovingDirection {
     Left,
     Up,

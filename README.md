@@ -48,5 +48,5 @@ The game is in development.
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files
+  - [x] When getting an input while moving, save the direction for the next movement
   - [ ] Cache best.bin file directory at start
-  - [ ] When moving while animating save the next direction.
