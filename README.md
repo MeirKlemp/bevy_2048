@@ -38,15 +38,16 @@ The game is in development.
   - [x] Add new game button
   - [x] Add a title
   - [x] Add how to play explanation
-  - [ ] Add game over screen
-  - [ ] Add a link to this repo and bevy repo
+  - [ ] Make the UI flexable
   - [ ] Add explanation of the tiles' colors
     - [ ] Make each color to be revealed when getting to the color in the game
-  - [ ] Options
-    - [ ] Add an option to set the board's size
+  - [ ] Add game over screen
+  - [ ] Add a link to this repo and bevy repo
   - [ ] Add an option to hide the interface
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files
   - [x] When getting an input while moving, save the direction for the next movement
+  - [x] Rewrite the UI into a separated plugin for each widget
+  - [ ] Try to use bevy's assets system for file saving instead of savefile crate
   - [ ] Cache best.bin file directory at start

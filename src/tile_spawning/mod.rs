@@ -15,7 +15,7 @@ pub use spawn_tiles::SpawnTileListener;
 // Stages for running the systems in the right order.
 pub static DESPAWN_STAGE: &str = "DESPAWN";
 pub static SPAWN_STAGE: &str = "SPAWN";
-pub static AFTER_SPAWN_STAGE: &str = "AFTER-SPAWN";
+pub static POST_SPAWN_STAGE: &str = "POST-SPAWN";
 
 use bevy::prelude::*;
 /// This plugin builds the tile spawing/despawning into the application.
@@ -26,7 +26,7 @@ impl Plugin for SpawnTilePlugin {
         app.init_resource::<SpawnTileListener>()
             .add_stage(DESPAWN_STAGE)
             .add_stage_after(DESPAWN_STAGE, SPAWN_STAGE)
-            .add_stage_after(SPAWN_STAGE, AFTER_SPAWN_STAGE)
+            .add_stage_after(SPAWN_STAGE, POST_SPAWN_STAGE)
             .add_event::<SpawnTileEvent>()
             .add_system_to_stage(SPAWN_STAGE, spawn_tiles::spawn_tiles.system())
             .add_system_to_stage(SPAWN_STAGE, spawn_animation::spawn_animation.system())

@@ -48,7 +48,7 @@ fn setup(
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
 ) {
     commands
-        // Cameras.
+        // Camera.
         .spawn(Camera2dComponents::default())
         // Board background.
         .spawn(SpriteComponents {

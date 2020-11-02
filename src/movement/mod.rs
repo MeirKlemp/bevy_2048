@@ -38,7 +38,7 @@ impl Plugin for MovementPlugin {
             .add_system(finish_moving::finish_moving.system())
             // This system should run after the new tile have spawned.
             .add_system_to_stage(
-                crate::tile_spawning::AFTER_SPAWN_STAGE,
+                crate::tile_spawning::POST_SPAWN_STAGE,
                 check_moveable::check_moveable.system(),
             );
     }

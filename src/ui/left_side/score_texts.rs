@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use super::LeftSideNode;
 use crate::{score::HighScore, score::Score};
 
 pub struct ScoreText;
@@ -16,12 +17,17 @@ pub fn highscore_text(highscore: Res<HighScore>, mut text: Mut<Text>, _: &HighSc
     text.value = format!("Best: {}", highscore.0)
 }
 
-pub fn spawn_score_text(
-    parent: &mut ChildBuilder,
-    font_handle: Handle<Font>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
+pub fn spawn_texts(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    ls_node_entity: Entity,
+    _: &LeftSideNode,
 ) {
-    parent
+    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+
+    // Spawning score text.
+    commands
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Px(230.0), Val::Px(100.0)),
@@ -50,14 +56,10 @@ pub fn spawn_score_text(
                 })
                 .with(ScoreText);
         });
-}
+    let score_entity = commands.current_entity().unwrap();
 
-pub fn spawn_highscore_text(
-    parent: &mut ChildBuilder,
-    font_handle: Handle<Font>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
-) {
-    parent
+    // Spawning highscore text.
+    commands
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Px(230.0), Val::Px(100.0)),
@@ -91,4 +93,7 @@ pub fn spawn_highscore_text(
                 })
                 .with(HighScoreText);
         });
+    let highscore_entity = commands.current_entity().unwrap();
+
+    commands.push_children(ls_node_entity, &[score_entity, highscore_entity]);
 }

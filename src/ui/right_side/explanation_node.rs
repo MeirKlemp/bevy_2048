@@ -1,11 +1,23 @@
 use bevy::prelude::*;
 
+use super::RightSideNode;
+
+const EXPLANATION_TEXT: &str = r#"Use arrow keys or
+WASD keys to merge
+the tiles with the
+same color. Press
+SPACE to restart."#;
+
 pub fn spawn_explanation_node(
-    parent: &mut ChildBuilder,
-    font_handle: Handle<Font>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    rs_node_entity: Entity,
+    _: &RightSideNode,
 ) {
-    parent
+    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+
+    commands
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Px(240.0)),
@@ -19,24 +31,14 @@ pub fn spawn_explanation_node(
             ..Default::default()
         })
         .with_children(|parent| {
-            spawn_explanation_text(
-                parent,
-                "Use arrow keys or\n\
-                       WASD keys to merge\n\
-                       the tiles with the\n\
-                       same color. Press\n\
-                       SPACE to restart.",
-                font_handle,
-            );
+            for line in EXPLANATION_TEXT.lines().rev() {
+                spawn_text(parent, line, 25.0, font_handle);
+            }
             // Title.
             spawn_text(parent, "How to play:", 40.0, font_handle);
         });
-}
 
-fn spawn_explanation_text(parent: &mut ChildBuilder, text: &str, font_handle: Handle<Font>) {
-    for line in text.lines().rev() {
-        spawn_text(parent, line, 25.0, font_handle);
-    }
+    commands.push_children(rs_node_entity, &[commands.current_entity().unwrap()]);
 }
 
 fn spawn_text(parent: &mut ChildBuilder, text: &str, font_size: f32, font_handle: Handle<Font>) {

@@ -1,11 +1,17 @@
 use bevy::prelude::*;
 
+use super::RightSideNode;
+
 pub fn spawn_title(
-    parent: &mut ChildBuilder,
-    font_handle: Handle<Font>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    rs_node_entity: Entity,
+    _: &RightSideNode,
 ) {
-    parent
+    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+
+    commands
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Px(60.0)),
@@ -37,4 +43,6 @@ pub fn spawn_title(
                 ..Default::default()
             });
         });
+
+    commands.push_children(rs_node_entity, &[commands.current_entity().unwrap()]);
 }

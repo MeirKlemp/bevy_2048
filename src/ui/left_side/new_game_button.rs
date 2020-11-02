@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use super::LeftSideNode;
 use crate::components::GameState;
 
 pub enum NewGameButtonState {
@@ -72,11 +73,15 @@ pub fn new_game_button_system(
 }
 
 pub fn spawn_new_game_button(
-    parent: &mut ChildBuilder,
-    font_handle: Handle<Font>,
-    button_materials: &Res<NewGameButtonMaterials>,
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    button_materials: Res<NewGameButtonMaterials>,
+    ls_node_entity: Entity,
+    _: &LeftSideNode,
 ) {
-    parent
+    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+
+    commands
         .spawn(ButtonComponents {
             style: Style {
                 size: Size::new(Val::Px(230.0), Val::Px(100.0)),
@@ -109,4 +114,6 @@ pub fn spawn_new_game_button(
             });
         })
         .with(NewGameButtonState::Idle);
+
+    commands.push_children(ls_node_entity, &[commands.current_entity().unwrap()]);
 }
