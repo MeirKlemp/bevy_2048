@@ -10,7 +10,7 @@ pub fn set_moving(
     mut commands: Commands,
     mut moving_state: ResMut<MovingState>,
     moving_dir: Res<MovingDirection>,
-    mut tiles: Query<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>,
+    tiles: Query<(Entity, &Tile, &Position, &Option<Moving>, &Option<Merged>)>,
 ) {
     // Checking the moving state.
     if let MovingState::SetMoving { starting } = *moving_state {

@@ -11,12 +11,12 @@ use super::MovingState;
 pub fn check_moveable(
     mut game_state: ResMut<GameState>,
     mut moving_state: ResMut<MovingState>,
-    mut tiles: Query<(&Tile, &Position)>,
+    tiles: Query<(&Tile, &Position)>,
 ) {
     if matches!(*game_state, GameState::Play) {
         if matches!(*moving_state, MovingState::CheckingMoveable) {
             // Checking if the board is full.
-            let len = tiles.iter().iter().len();
+            let len = tiles.iter().len();
             if len == 16 {
                 // Creating a 1d array board.
                 let mut iter = tiles.iter();

@@ -50,14 +50,14 @@ pub fn new_game_button_system(
         &mut NewGameButtonState,
     )>,
 ) {
-    for (_, interaction, mut material, mut button_state) in &mut interaction_query.iter() {
+    for (_, interaction, mut material, mut button_state) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                *material = button_materials.pressed;
+                *material = button_materials.pressed.clone();
                 *button_state = NewGameButtonState::Down;
             }
             Interaction::Hovered => {
-                *material = button_materials.hovered;
+                *material = button_materials.hovered.clone();
                 button_state.update_state();
 
                 if matches!(*button_state, NewGameButtonState::Up) {
@@ -65,7 +65,7 @@ pub fn new_game_button_system(
                 }
             }
             Interaction::None => {
-                *material = button_materials.normal;
+                *material = button_materials.normal.clone();
                 button_state.update_state();
             }
         }
@@ -79,7 +79,7 @@ pub fn spawn_new_game_button(
     ls_node_entity: Entity,
     _: &LeftSideNode,
 ) {
-    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+    let font_handle = assets.get_handle("fonts/FiraSans-Bold.ttf");
 
     commands
         .spawn(ButtonComponents {
@@ -95,7 +95,7 @@ pub fn spawn_new_game_button(
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
-            material: button_materials.normal,
+            material: button_materials.normal.clone(),
             ..Default::default()
         })
         .with_children(|parent| {

@@ -15,7 +15,7 @@ pub fn spawn_how_to_node(
     rs_node_entity: Entity,
     _: &RightSideNode,
 ) {
-    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+    let font_handle = assets.get_handle("fonts/FiraSans-Bold.ttf");
 
     commands
         .spawn(NodeComponents {
@@ -32,7 +32,7 @@ pub fn spawn_how_to_node(
         })
         .with_children(|parent| {
             for line in EXPLANATION_TEXT.lines().rev() {
-                spawn_text(parent, line, 25.0, font_handle);
+                spawn_text(parent, line, 25.0, font_handle.clone());
             }
             // Title.
             spawn_text(parent, "How to play:", 40.0, font_handle);

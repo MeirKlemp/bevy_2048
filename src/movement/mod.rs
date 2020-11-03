@@ -33,6 +33,7 @@ impl Plugin for MovementPlugin {
             .add_system(moving_input::next_direction.system())
             .add_system(set_moving::set_moving.system())
             .add_system(moving_animation::moving_animation.system())
+            .add_system(moving_animation::check_animation_finished.system())
             .add_system(merging::merging.system())
             .add_system(merge_animation::merge_animation.system())
             .add_system(finish_moving::finish_moving.system())

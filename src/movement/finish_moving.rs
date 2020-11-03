@@ -15,7 +15,7 @@ pub fn finish_moving(
 ) {
     if let MovingState::Finishing { moved } = *moving_state {
         // Setting all the merged to `None`.
-        for mut merged in &mut merged.iter() {
+        for mut merged in merged.iter_mut() {
             if merged.is_some() {
                 *merged = None;
             }

@@ -29,7 +29,7 @@ pub fn merging(
         // Create a board with entity and position to check
         // if two tiles are at the same position.
         let mut board = [None; 16];
-        for (entity, mut tile, position, mut merged, mut material) in &mut tiles.iter() {
+        for (entity, mut tile, position, mut merged, mut material) in tiles.iter_mut() {
             // Check if a tile is already exists at that position.
             if let Some((existing_entity, _position)) = board[position.index()] {
                 // Despawning the existing tile.

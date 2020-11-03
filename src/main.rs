@@ -28,7 +28,7 @@ pub const STARTING_TILES: usize = 2;
 
 fn main() {
     App::build()
-        .add_default_plugins()
+        .add_plugins(DefaultPlugins)
         .add_plugin(SpawnTilePlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(ScoreSystemPlugin)
@@ -82,7 +82,7 @@ fn new_game(
     mut game_state: ResMut<GameState>,
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
     mut score: ResMut<Score>,
-    mut tiles: Query<With<Tile, Entity>>,
+    tiles: Query<With<Tile, Entity>>,
 ) {
     if matches!(*game_state, GameState::Restarting) {
         for entity in &mut tiles.iter() {

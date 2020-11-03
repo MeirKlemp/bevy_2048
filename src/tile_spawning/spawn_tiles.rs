@@ -31,7 +31,7 @@ pub fn spawn_tiles(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut listener: ResMut<SpawnTileListener>,
     spawn_events: Res<Events<SpawnTileEvent>>,
-    mut positions: Query<&Position>,
+    positions: Query<&Position>,
 ) {
     // Vector of empty tiles for all the iterations.
     let mut free_pos = None;

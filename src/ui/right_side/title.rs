@@ -9,7 +9,7 @@ pub fn spawn_title(
     rs_node_entity: Entity,
     _: &RightSideNode,
 ) {
-    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+    let font_handle = assets.get_handle("fonts/FiraSans-Bold.ttf");
 
     commands
         .spawn(NodeComponents {

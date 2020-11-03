@@ -24,7 +24,7 @@ pub fn spawn_texts(
     ls_node_entity: Entity,
     _: &LeftSideNode,
 ) {
-    let font_handle = assets.get_handle("assets/fonts/FiraSans-Bold.ttf").unwrap();
+    let font_handle = assets.get_handle("fonts/FiraSans-Bold.ttf");
 
     // Spawning score text.
     commands
@@ -46,7 +46,7 @@ pub fn spawn_texts(
                     style: Style::default(),
                     text: Text {
                         value: "Score: 0".to_string(),
-                        font: font_handle,
+                        font: font_handle.clone(),
                         style: TextStyle {
                             font_size: 40.0,
                             color: Color::WHITE,
@@ -83,7 +83,7 @@ pub fn spawn_texts(
                     style: Style::default(),
                     text: Text {
                         value: "Best: 0".to_string(),
-                        font: font_handle,
+                        font: font_handle.clone(),
                         style: TextStyle {
                             font_size: 40.0,
                             color: Color::WHITE,
