@@ -14,14 +14,14 @@ pub fn spawn_title(
     commands
         .spawn(NodeComponents {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Px(60.0)),
+                size: Size::new(Val::Percent(90.0), Val::Percent(20.0)),
                 justify_content: JustifyContent::Center,
-                align_items: AlignItems::FlexEnd,
+                align_items: AlignItems::Center,
                 flex_wrap: FlexWrap::Wrap,
                 margin: Rect {
-                    left: Val::Px(15.0),
-                    top: Val::Px(15.0),
-                    right: Val::Px(15.0),
+                    left: Val::Percent(5.0),
+                    top: Val::Percent(5.0),
+                    right: Val::Percent(5.0),
                     bottom: Val::Px(0.0),
                 },
                 ..Default::default()
@@ -36,7 +36,7 @@ pub fn spawn_title(
                     value: "Bevy 2048".to_string(),
                     font: font_handle,
                     style: TextStyle {
-                        font_size: 60.0,
+                        font_size: 55.0,
                         color: Color::WHITE,
                     },
                 },

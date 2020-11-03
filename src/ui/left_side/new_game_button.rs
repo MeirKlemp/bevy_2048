@@ -84,11 +84,11 @@ pub fn spawn_new_game_button(
     commands
         .spawn(ButtonComponents {
             style: Style {
-                size: Size::new(Val::Px(230.0), Val::Px(100.0)),
+                size: Size::new(Val::Percent(90.0), Val::Percent(28.0)),
                 margin: Rect {
-                    left: Val::Px(15.0),
-                    top: Val::Px(15.0),
-                    right: Val::Px(15.0),
+                    left: Val::Percent(5.0),
+                    top: Val::Percent(5.0),
+                    right: Val::Percent(5.0),
                     bottom: Val::Px(0.0),
                 },
                 justify_content: JustifyContent::Center,

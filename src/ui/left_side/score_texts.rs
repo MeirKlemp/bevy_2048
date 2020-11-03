@@ -30,8 +30,8 @@ pub fn spawn_texts(
     commands
         .spawn(NodeComponents {
             style: Style {
-                size: Size::new(Val::Px(230.0), Val::Px(100.0)),
-                margin: Rect::all(Val::Px(15.0)),
+                size: Size::new(Val::Percent(90.0), Val::Percent(28.0)),
+                margin: Rect::all(Val::Percent(5.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 ..Default::default()
@@ -62,11 +62,11 @@ pub fn spawn_texts(
     commands
         .spawn(NodeComponents {
             style: Style {
-                size: Size::new(Val::Px(230.0), Val::Px(100.0)),
+                size: Size::new(Val::Percent(90.0), Val::Percent(28.0)),
                 margin: Rect {
-                    left: Val::Px(15.0),
-                    top: Val::Px(15.0),
-                    right: Val::Px(15.0),
+                    left: Val::Percent(5.0),
+                    top: Val::Percent(5.0),
+                    right: Val::Percent(5.0),
                     bottom: Val::Px(0.0),
                 },
                 justify_content: JustifyContent::Center,

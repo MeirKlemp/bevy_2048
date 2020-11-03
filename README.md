@@ -38,7 +38,7 @@ The game is in development.
   - [x] Add new game button
   - [x] Add a title
   - [x] Add how to play explanation
-  - [ ] Make the UI flexable
+  - [x] Make the UI flexible
   - [ ] Add explanation of the tiles' colors
     - [ ] Make each color to be revealed when getting to the color in the game
   - [ ] Add game over screen

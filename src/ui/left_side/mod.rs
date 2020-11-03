@@ -32,7 +32,7 @@ fn spawn_left_side_node(mut commands: Commands, root_entity: Entity, _: &RootNod
     commands
         .spawn(NodeComponents {
             style: Style {
-                size: Size::new(Val::Px(260.0), Val::Px(360.0)),
+                size: Size::new(Val::Percent(20.0), Val::Percent(50.0)),
                 align_self: AlignSelf::FlexEnd,
                 align_items: AlignItems::FlexEnd,
                 flex_wrap: FlexWrap::Wrap,

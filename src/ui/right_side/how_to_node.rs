@@ -8,7 +8,7 @@ the tiles with the
 same color. Press
 SPACE to restart."#;
 
-pub fn spawn_explanation_node(
+pub fn spawn_how_to_node(
     mut commands: Commands,
     assets: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -20,11 +20,11 @@ pub fn spawn_explanation_node(
     commands
         .spawn(NodeComponents {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Px(240.0)),
+                size: Size::new(Val::Percent(90.0), Val::Percent(70.0)),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 flex_wrap: FlexWrap::Wrap,
-                margin: Rect::all(Val::Px(15.0)),
+                margin: Rect::all(Val::Percent(5.0)),
                 ..Default::default()
             },
             material: materials.add(Color::rgb_u8(40, 40, 40).into()),
@@ -47,8 +47,7 @@ fn spawn_text(parent: &mut ChildBuilder, text: &str, font_size: f32, font_handle
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Px(font_size)),
                 justify_content: JustifyContent::Center,
-                align_items: AlignItems::FlexEnd,
-                flex_wrap: FlexWrap::Wrap,
+                align_items: AlignItems::Center,
                 ..Default::default()
             },
             draw: Draw {
