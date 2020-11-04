@@ -3,7 +3,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Position, Tile},
+    common::{Position, Tile},
     score::Score,
     tile_spawning::Despawn,
 };

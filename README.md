@@ -49,5 +49,5 @@ The game is in development.
   - [x] Separate the project into files
   - [x] When getting an input while moving, save the direction for the next movement
   - [x] Rewrite the UI into a separated plugin for each widget
-  - [ ] Try to use bevy's assets system for file saving instead of savefile crate
+  - [x] Make the board flexible
   - [ ] Cache best.bin file directory at start

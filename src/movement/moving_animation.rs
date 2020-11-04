@@ -2,7 +2,7 @@
 //! the impl of the Animating state's system.
 use bevy::prelude::*;
 
-use crate::components::{Animation, Position};
+use crate::common::{Animation, GameSize, Position};
 
 use super::{Moving, MovingDirection, MovingState};
 
@@ -25,6 +25,7 @@ impl Default for MovingAnimation {
 /// While the moving state is `Animating`, animating all moving tiles.
 pub fn moving_animation(
     time: Res<Time>,
+    game_size: Res<GameSize>,
     mut moving_state: ResMut<MovingState>,
     mut moving_anim: ResMut<MovingAnimation>,
     moving_dir: Res<MovingDirection>,
@@ -43,11 +44,11 @@ pub fn moving_animation(
                 if moving.is_some() {
                     // The amount to move from its position.
                     let translate: Vec3 = Vec3::from(*moving_dir)
-                        * (crate::TILE_SIZE + crate::TILE_SPACING)
+                        * (game_size.tile_size() + game_size.tile_spacing())
                         * moving_anim.animation.value();
 
                     // update the transform.
-                    transform.translation = Vec3::from(*position) + translate;
+                    transform.translation = position.to_vec3(*game_size) + translate;
                 }
             }
         }

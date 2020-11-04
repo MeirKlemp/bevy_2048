@@ -1,11 +1,12 @@
-mod components;
+mod board;
+mod common;
 mod movement;
 mod score;
 mod tile_spawning;
 mod ui;
 
 use bevy::{prelude::*, render::pass::ClearColor};
-use components::{GameState, Position, Tile};
+use common::{GameSize, GameState, Tile};
 use movement::MovementPlugin;
 use score::{Score, ScoreSystemPlugin};
 use tile_spawning::{Despawn, SpawnTileEvent, SpawnTilePlugin};
@@ -13,15 +14,6 @@ use ui::UiPlugin;
 
 #[macro_use]
 extern crate savefile_derive;
-
-/// The size of the whole board.
-pub const BOARD_SIZE: f32 = 500.0;
-/// The size of each tile.
-pub const TILE_SIZE: f32 = (BOARD_SIZE * 0.85) / 4.0;
-/// The space between two tiles.
-pub const TILE_SPACING: f32 = (BOARD_SIZE * 0.15) / 5.0;
-
-pub const MERGE_SIZE: f32 = 20.0;
 
 /// Number of tiles to spawn at start.
 pub const STARTING_TILES: usize = 2;
@@ -34,42 +26,25 @@ fn main() {
         .add_plugin(ScoreSystemPlugin)
         .add_plugin(UiPlugin)
         .init_resource::<GameState>()
+        .init_resource::<GameSize>()
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
+        .add_startup_system(board::spawn_board.system())
+        .add_system(board::update_board_size.system())
+        .add_system(board::update_tiles_size.system())
         .add_system(new_game.system())
         .add_system(space_new_game.system())
+        .add_system(common::update_game_size.system())
         .run();
 }
 
 fn setup(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     mut spawn_tile_events: ResMut<Events<SpawnTileEvent>>,
 ) {
-    commands
-        // Camera.
-        .spawn(Camera2dComponents::default())
-        // Board background.
-        .spawn(SpriteComponents {
-            material: materials.add(Color::rgb_u8(119, 110, 101).into()),
-            sprite: Sprite::new(Vec2::new(BOARD_SIZE, BOARD_SIZE)),
-            ..Default::default()
-        });
-
-    // Creating a grid of empty tiles.
-    for row in 0..4 {
-        for col in 0..4 {
-            let position = Position { row, col };
-
-            commands.spawn(SpriteComponents {
-                material: materials.add(Color::rgba_u8(238, 228, 218, 90).into()),
-                sprite: Sprite::new(Vec2::new(TILE_SIZE, TILE_SIZE)),
-                transform: Transform::from_translation(position.into()),
-                ..Default::default()
-            });
-        }
-    }
+    // Camera.
+    commands.spawn(Camera2dComponents::default());
 
     // Spawning tiles at the beginning.
     spawn_tile_events.send(SpawnTileEvent {

@@ -1,6 +1,6 @@
 //! This module cotains the impl of the SpawnTile event, reader and system.
 
-use crate::components::{Position, Tile};
+use crate::common::{GameSize, Position, Tile};
 use crate::movement::{Merged, Moving};
 use bevy::prelude::*;
 use rand::Rng;
@@ -28,10 +28,11 @@ pub struct SpawnTileListener {
 /// Spawning a new tile for every SpawnTileEvent event.
 pub fn spawn_tiles(
     mut commands: Commands,
+    game_size: Res<GameSize>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut listener: ResMut<SpawnTileListener>,
     spawn_events: Res<Events<SpawnTileEvent>>,
-    positions: Query<&Position>,
+    positions: Query<With<Tile, &Position>>,
 ) {
     // Vector of empty tiles for all the iterations.
     let mut free_pos = None;
@@ -74,7 +75,7 @@ pub fn spawn_tiles(
                 commands
                     .spawn(SpriteComponents {
                         material: materials.add(tile.color().into()),
-                        transform: Transform::from_translation(pos.into()),
+                        transform: Transform::from_translation(pos.to_vec3(*game_size)),
                         ..Default::default()
                     })
                     .with(tile)

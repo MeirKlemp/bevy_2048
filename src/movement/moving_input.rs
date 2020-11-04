@@ -2,8 +2,7 @@
 use bevy::prelude::*;
 use std::convert::TryFrom;
 
-use crate::components::GameState;
-
+use crate::common::GameState;
 use super::{MovingDirection, MovingState};
 
 /// While the moving state is `Idle`, getting the input

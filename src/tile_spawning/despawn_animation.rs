@@ -1,6 +1,6 @@
 //! This module contains the impl of the DespawnAnimation and its system.
 
-use crate::components::Animation;
+use crate::common::{Animation, GameSize};
 use bevy::prelude::*;
 
 /// Component used to animate the tiles despawning.
@@ -21,13 +21,14 @@ impl Default for DespawnAnimation {
 pub fn despawn_animation(
     mut commands: Commands,
     time: Res<Time>,
+    game_size: Res<GameSize>,
     entity: Entity,
     mut despawn_anim: Mut<DespawnAnimation>,
     mut sprite: Mut<Sprite>,
 ) {
     if despawn_anim.animation.update(time.delta_seconds) {
         // Updating the sprite size while the animation is not finished.
-        let size = crate::TILE_SIZE * despawn_anim.animation.rev_value();
+        let size = game_size.tile_size() * despawn_anim.animation.rev_value();
         sprite.size.set_x(size);
         sprite.size.set_y(size);
     }

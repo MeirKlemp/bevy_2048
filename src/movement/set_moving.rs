@@ -1,6 +1,6 @@
 //! This module contains the impl of the SetMoving state's system.
 
-use crate::{components::Position, components::Tile};
+use crate::common::{Position, Tile};
 use bevy::prelude::*;
 
 use super::{Merged, Moving, MovingDirection, MovingState};

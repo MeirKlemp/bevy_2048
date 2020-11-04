@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 
-use crate::components::{GameState, Position, Tile};
+use crate::common::{GameState, Position, Tile};
 
 use super::MovingState;
 

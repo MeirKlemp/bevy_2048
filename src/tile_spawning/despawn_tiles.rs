@@ -2,7 +2,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{Position, Tile},
+    common::{Position, Tile},
     movement::{Merged, Moving},
 };
 

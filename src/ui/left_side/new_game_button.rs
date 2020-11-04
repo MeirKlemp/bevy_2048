@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::LeftSideNode;
-use crate::components::GameState;
+use crate::common::GameState;
 
 pub enum NewGameButtonState {
     Idle,

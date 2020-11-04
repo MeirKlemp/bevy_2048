@@ -1,6 +1,6 @@
 //! This module contains the impl of the MergeAnimation component and system.
 
-use crate::components::Animation;
+use crate::common::{Animation, GameSize};
 use bevy::prelude::*;
 
 /// Component used to animate the tiles that have been merged.
@@ -23,13 +23,14 @@ impl Default for MergeAnimation {
 pub fn merge_animation(
     mut commands: Commands,
     time: Res<Time>,
+    game_size: Res<GameSize>,
     entity: Entity,
     mut merge_anim: Mut<MergeAnimation>,
     mut sprite: Mut<Sprite>,
 ) {
     if merge_anim.animation.update(time.delta_seconds) {
         // Updating the sprite size while the animation is not finished.
-        let size = crate::TILE_SIZE + crate::MERGE_SIZE * merge_anim.animation.value();
+        let size = game_size.tile_size() + game_size.merge_size() * merge_anim.animation.value();
         sprite.size.set_x(size);
         sprite.size.set_y(size);
     }

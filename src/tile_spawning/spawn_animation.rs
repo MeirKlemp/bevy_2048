@@ -1,5 +1,5 @@
 //! This module contains the impl of the SpawnAnimation component and its system.
-use crate::components::Animation;
+use crate::common::{Animation, GameSize};
 use bevy::prelude::*;
 
 /// Component used to animate the tiles spawning.
@@ -22,13 +22,14 @@ impl Default for SpawnAnimation {
 pub fn spawn_animation(
     mut commands: Commands,
     time: Res<Time>,
+    game_size: Res<GameSize>,
     entity: Entity,
     mut spawn_anim: Mut<SpawnAnimation>,
     mut sprite: Mut<Sprite>,
 ) {
     if spawn_anim.animation.update(time.delta_seconds) {
         // Updating the sprite size while the animation is not finished.
-        let size = crate::TILE_SIZE * spawn_anim.animation.value();
+        let size = game_size.tile_size() * spawn_anim.animation.value();
         sprite.size.set_x(size);
         sprite.size.set_y(size);
     }

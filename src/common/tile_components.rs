@@ -2,6 +2,8 @@
 
 use bevy::prelude::*;
 
+use super::GameSize;
+
 /// Component for saving tile level.
 #[derive(Debug)]
 pub struct Tile {
@@ -45,21 +47,19 @@ impl Position {
     pub fn index(&self) -> usize {
         self.row * 4 + self.col
     }
-}
 
-impl From<Position> for Vec3 {
-    /// Transforms a position into a world point.
-    fn from(pos: Position) -> Self {
+    /// Transforms a position into a world point according to the board's size.
+    pub fn to_vec3(self, game_size: GameSize) -> Vec3 {
         // Offset from the bottom left point of the board.
         let offset = Vec3::new(
-            -(crate::BOARD_SIZE - crate::TILE_SIZE) / 2.0 + crate::TILE_SPACING,
-            -(crate::BOARD_SIZE - crate::TILE_SIZE) / 2.0 + crate::TILE_SPACING,
+            -(game_size.board_size() - game_size.tile_size()) / 2.0 + game_size.tile_spacing(),
+            -(game_size.board_size() - game_size.tile_size()) / 2.0 + game_size.tile_spacing(),
             0.0,
         );
 
         Vec3::new(
-            (crate::TILE_SIZE + crate::TILE_SPACING) * pos.col as f32,
-            (crate::TILE_SIZE + crate::TILE_SPACING) * pos.row as f32,
+            (game_size.tile_size() + game_size.tile_spacing()) * self.col as f32,
+            (game_size.tile_size() + game_size.tile_spacing()) * self.row as f32,
             0.0,
         ) + offset
     }
