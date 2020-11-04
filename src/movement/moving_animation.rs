@@ -25,16 +25,21 @@ impl Default for MovingAnimation {
 /// While the moving state is `Animating`, animating all moving tiles.
 pub fn moving_animation(
     time: Res<Time>,
+    mut moving_state: ResMut<MovingState>,
     mut moving_anim: ResMut<MovingAnimation>,
-    moving_state: Res<MovingState>,
     moving_dir: Res<MovingDirection>,
-    mut animate_transform: Query<(&Position, &mut Transform, &Option<Moving>)>,
+    mut queries: QuerySet<(
+        // Used for animating.
+        Query<(&Position, &mut Transform, &Option<Moving>)>,
+        // Used for updating the position at the end.
+        Query<(&mut Position, &mut Option<Moving>)>,
+    )>,
 ) {
     if matches!(*moving_state, MovingState::Animating) {
         // Checking if should update the transform of the tiles.
         if moving_anim.animation.update(time.delta_seconds) {
             // For each tile that is moving, update its transform.
-            for (position, mut transform, moving) in animate_transform.iter_mut() {
+            for (position, mut transform, moving) in queries.q0_mut().iter_mut() {
                 if moving.is_some() {
                     // The amount to move from its position.
                     let translate: Vec3 = Vec3::from(*moving_dir)
@@ -46,21 +51,11 @@ pub fn moving_animation(
                 }
             }
         }
-    }
-}
 
-pub fn check_animation_finished(
-    mut moving_state: ResMut<MovingState>,
-    mut moving_anim: ResMut<MovingAnimation>,
-    moving_dir: Res<MovingDirection>,
-    mut update_position: Query<(&mut Position, &mut Option<Moving>)>,
-) {
-
-    if matches!(*moving_state, MovingState::Animating) {
         // If the animation have been finished, remove all moving and
         // update the position component.
         if moving_anim.animation.finished() {
-            for (mut position, mut moving) in update_position.iter_mut() {
+            for (mut position, mut moving) in queries.q1_mut().iter_mut() {
                 if moving.is_some() {
                     *position = moving_dir.moved_position(&position).unwrap();
                     *moving = None;
