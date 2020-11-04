@@ -45,7 +45,13 @@ The game is in development.
     - [ ] Make each color to be revealed when getting to the color in the game
   - [ ] Add game over screen
   - [ ] Add a link to this repo and bevy repo
-  - [ ] Add an option to hide the interface
+- [ ] Finishing
+  - [ ] Update README
+    - [ ] Add intro to the game 
+    - [ ] Add instructions how to run using Cargo
+    - [ ] Add gifs of the game.
+  - [ ] Add a release to this repo
+    - [ ] Add binaries for Windows and Linux
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files
