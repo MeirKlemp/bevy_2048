@@ -20,6 +20,11 @@ pub const STARTING_TILES: usize = 2;
 
 fn main() {
     App::build()
+        // Set window title.
+        .add_resource(WindowDescriptor {
+            title: "Bevy 2048".to_string(),
+            ..Default::default()
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(SpawnTilePlugin)
         .add_plugin(MovementPlugin)
@@ -32,7 +37,7 @@ fn main() {
         .add_startup_system(setup.system())
         .add_startup_system(board::spawn_board.system())
         .add_system(board::update_board_size.system())
-        .add_system(board::update_tiles_size.system())
+        .add_system(board::update_tiles_size_and_position.system())
         .add_system(new_game.system())
         .add_system(space_new_game.system())
         .add_system(common::update_game_size.system())

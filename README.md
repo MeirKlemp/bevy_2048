@@ -7,6 +7,7 @@ The game is in development.
 - [x] Board
   - [x] Create the background at startup
   - [x] Create the empty tiles grid at startup
+  - [x] Make the board flexible
 - [x] Tiles
   - [x] Tile spawning
     - [x] Create an event system for spawning new tiles
@@ -32,6 +33,7 @@ The game is in development.
     - [x] Save the highscore in a file
 - [x] Game Over
   - [x] When not available moves
+- [x] Set window's title
 - [ ] Interface
   - [x] Add score label
   - [x] Add highscore label
@@ -49,5 +51,4 @@ The game is in development.
   - [x] Separate the project into files
   - [x] When getting an input while moving, save the direction for the next movement
   - [x] Rewrite the UI into a separated plugin for each widget
-  - [x] Make the board flexible
   - [ ] Cache best.bin file directory at start

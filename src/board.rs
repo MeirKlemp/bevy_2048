@@ -46,7 +46,7 @@ pub fn update_board_size(game_size: Res<GameSize>, mut sprite: Mut<Sprite>, _: &
     sprite.size = Vec2::new(game_size.board_size(), game_size.board_size());
 }
 
-pub fn update_tiles_size(
+pub fn update_tiles_size_and_position(
     game_size: Res<GameSize>,
     mut tiles_size: Query<With<Tile, Without<SpawnAnimation, &mut Sprite>>>,
     mut tiles_position: Query<(&mut Transform, &Position, &Option<Moving>)>,
