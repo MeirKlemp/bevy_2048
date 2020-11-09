@@ -1,4 +1,4 @@
-//! This module contains the impl of the struct `Animation`.
+//! This module contains the implementation of the struct `Animation`.
 
 use bevy::core::Timer;
 

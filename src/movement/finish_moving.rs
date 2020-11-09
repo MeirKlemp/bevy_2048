@@ -1,4 +1,4 @@
-//! This module contains the impl of the Finishing state's system.
+//! This module contains the implementation of the Finishing state's system.
 
 use bevy::prelude::*;
 

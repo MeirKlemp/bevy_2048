@@ -1,5 +1,5 @@
-//! This module contains the impl of the MovingAnimation component and
-//! the impl of the Animating state's system.
+//! This module contains the implementation of the MovingAnimation component and
+//! the implementation of the Animating state's system.
 use bevy::prelude::*;
 
 use crate::common::{Animation, GameSize, Position};

@@ -1,4 +1,4 @@
-//! This module contains the impl of the MovingDirection component.
+//! This module contains the implementation of the MovingDirection component.
 use crate::common::Position;
 use bevy::prelude::*;
 use std::convert::TryFrom;

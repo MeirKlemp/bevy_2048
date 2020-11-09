@@ -1,4 +1,4 @@
-//! This module contains the impl of the highscore struct.
+//! This module contains the implementation of the highscore struct.
 
 use bevy::prelude::*;
 use savefile::prelude::*;

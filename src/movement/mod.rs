@@ -1,4 +1,4 @@
-//! This module contains the impl of the systems and components in order to move the tiles.
+//! This module contains the implementation of the systems and components in order to move the tiles.
 
 mod check_moveable;
 mod finish_moving;

@@ -1,3 +1,6 @@
+//! This module contains the implementation of `RightSidePlugin`
+//! and the system that creates the right side node.
+
 mod how_to_node;
 mod title;
 
@@ -9,6 +12,7 @@ pub struct RightSidePlugin;
 
 static POST_RS_CREATION_STAGE: &str = "POST-RIGHT-SIDE-CREATION";
 
+/// This plugin builds the right side ui into the app.
 impl Plugin for RightSidePlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
         app.add_startup_stage_after(POST_ROOT_CREATION_STAGE, POST_RS_CREATION_STAGE)
@@ -21,8 +25,10 @@ impl Plugin for RightSidePlugin {
     }
 }
 
+/// An identifier for the right side node.
 pub struct RightSideNode;
 
+/// Spawns the right side node as a child of the root node.
 fn spawn_right_side_node(mut commands: Commands, root_entity: Entity, _: &RootNode) {
     commands
         .spawn(NodeComponents {
@@ -41,5 +47,6 @@ fn spawn_right_side_node(mut commands: Commands, root_entity: Entity, _: &RootNo
         })
         .with(RightSideNode);
 
+    // Making the right side node as a child of the root node.
     commands.push_children(root_entity, &[commands.current_entity().unwrap()]);
 }

@@ -1,4 +1,4 @@
-//! This module contains the impl of the Merging state's system.
+//! This module contains the implementation of the Merging state's system.
 
 use bevy::prelude::*;
 

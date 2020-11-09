@@ -1,4 +1,4 @@
-//! This module contains the impl of the Despawn component and its system.
+//! This module contains the implementation of the Despawn component and its system.
 use bevy::prelude::*;
 
 use crate::{

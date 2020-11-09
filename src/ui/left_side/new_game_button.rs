@@ -1,8 +1,11 @@
+//! This module contains the implementation of the new game button.
+
 use bevy::prelude::*;
 
 use super::LeftSideNode;
 use crate::common::GameState;
 
+/// This enum keeps information about the button state.
 pub enum NewGameButtonState {
     Idle,
     Down,
@@ -10,6 +13,8 @@ pub enum NewGameButtonState {
 }
 
 impl NewGameButtonState {
+    /// Updates the button state.</br>
+    /// It updates the state once per call (Down->Up->Idle).
     pub fn update_state(&mut self) {
         match self {
             NewGameButtonState::Down => {
@@ -23,6 +28,7 @@ impl NewGameButtonState {
     }
 }
 
+/// This struct saves the button color by its state.
 pub struct NewGameButtonMaterials {
     normal: Handle<ColorMaterial>,
     hovered: Handle<ColorMaterial>,
@@ -40,6 +46,7 @@ impl FromResources for NewGameButtonMaterials {
     }
 }
 
+/// This system is responsible for the button's interaction.
 pub fn new_game_button_system(
     mut game_state: ResMut<GameState>,
     button_materials: Res<NewGameButtonMaterials>,
@@ -60,6 +67,7 @@ pub fn new_game_button_system(
                 *material = button_materials.hovered.clone();
                 button_state.update_state();
 
+                // Restarting the game only when released on the button.
                 if matches!(*button_state, NewGameButtonState::Up) {
                     *game_state = GameState::Restarting;
                 }
@@ -72,6 +80,7 @@ pub fn new_game_button_system(
     }
 }
 
+/// This system spawns the button at startup.
 pub fn spawn_new_game_button(
     mut commands: Commands,
     assets: Res<AssetServer>,
@@ -99,7 +108,7 @@ pub fn spawn_new_game_button(
             ..Default::default()
         })
         .with_children(|parent| {
-            // Score Text.
+            // Button text.
             parent.spawn(TextComponents {
                 style: Style::default(),
                 text: Text {
@@ -115,5 +124,6 @@ pub fn spawn_new_game_button(
         })
         .with(NewGameButtonState::Idle);
 
+    // Making the button as a child of the left side node.
     commands.push_children(ls_node_entity, &[commands.current_entity().unwrap()]);
 }

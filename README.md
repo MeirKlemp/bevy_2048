@@ -51,10 +51,10 @@ The game is in development.
     - [ ] Add instructions how to run using Cargo
     - [ ] Add gifs of the game.
   - [ ] Add a release to this repo
-    - [ ] Add binaries for Windows and Linux
 - [ ] Polish
   - [x] Remove the usage of commands for changing components' values(too slow)
   - [x] Separate the project into files
   - [x] When getting an input while moving, save the direction for the next movement
   - [x] Rewrite the UI into a separated plugin for each widget
+  - [ ] Move the todo list into its own file.
   - [ ] Cache best.bin file directory at start

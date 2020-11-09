@@ -1,15 +1,14 @@
 use bevy::prelude::*;
 
-use crate::{
-    common::{GameSize, Position, Tile},
-    movement::Moving,
-    tile_spawning::SpawnAnimation,
-};
+use crate::common::{GameSize, Position};
 
+/// An identifier for the board background's entity.
 pub struct Board;
 
+/// An identifier for the empty-tiles' entities.
 pub struct EmptyTile;
 
+/// This system spawns the board and the emtpy-tiles.
 pub fn spawn_board(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -39,35 +38,5 @@ pub fn spawn_board(
                 .with(position)
                 .with(EmptyTile);
         }
-    }
-}
-
-pub fn update_board_size(game_size: Res<GameSize>, mut sprite: Mut<Sprite>, _: &Board) {
-    sprite.size = Vec2::new(game_size.board_size(), game_size.board_size());
-}
-
-pub fn update_tiles_size_and_position(
-    game_size: Res<GameSize>,
-    mut tiles_size: Query<With<Tile, Without<SpawnAnimation, &mut Sprite>>>,
-    mut tiles_position: Query<(&mut Transform, &Position, &Option<Moving>)>,
-    mut empty_tiles_size: Query<With<EmptyTile, &mut Sprite>>,
-    mut empty_tiles_position: Query<With<EmptyTile, (&mut Transform, &Position)>>,
-) {
-    for mut sprite in tiles_size.iter_mut() {
-        sprite.size = Vec2::new(game_size.tile_size(), game_size.tile_size());
-    }
-
-    for (mut transform, position, moving) in tiles_position.iter_mut() {
-        if moving.is_none() {
-            transform.translation = position.to_vec3(*game_size);
-        }
-    }
-
-    for mut sprite in empty_tiles_size.iter_mut() {
-        sprite.size = Vec2::new(game_size.tile_size(), game_size.tile_size());
-    }
-
-    for (mut transform, position) in empty_tiles_position.iter_mut() {
-        transform.translation = position.to_vec3(*game_size);
     }
 }

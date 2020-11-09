@@ -1,4 +1,4 @@
-//! This module contains the impl of the MovingState component.
+//! This module contains the implementation of the MovingState component.
 
 /// The struct's aim is to cut the proccess of moving into
 /// small pieces with states.

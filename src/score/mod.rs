@@ -1,4 +1,4 @@
-//! This module contains the impl of the components and the plugin for the score system.
+//! This module contains the implementation of the components and the plugin for the score system.
 
 use bevy::prelude::*;
 

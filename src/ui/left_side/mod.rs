@@ -1,3 +1,6 @@
+//! This module contains the implementation of `LeftSidePlugin`
+//! and the system that creates the left side node.
+
 mod new_game_button;
 mod score_texts;
 
@@ -6,9 +9,10 @@ use bevy::prelude::*;
 use super::{RootNode, POST_ROOT_CREATION_STAGE};
 use new_game_button::NewGameButtonMaterials;
 
-pub struct LeftSidePlugin;
-
 static POST_LS_CREATION_STAGE: &str = "POST-LEFT-SIDE-CREATION";
+
+/// This plugin builds the left side ui into the app.
+pub struct LeftSidePlugin;
 
 impl Plugin for LeftSidePlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
@@ -26,8 +30,10 @@ impl Plugin for LeftSidePlugin {
     }
 }
 
+/// An identifier for the left side node.
 pub struct LeftSideNode;
 
+/// Spawns the left side node as a child of the root node.
 fn spawn_left_side_node(mut commands: Commands, root_entity: Entity, _: &RootNode) {
     commands
         .spawn(NodeComponents {
@@ -46,5 +52,6 @@ fn spawn_left_side_node(mut commands: Commands, root_entity: Entity, _: &RootNod
         })
         .with(LeftSideNode);
 
+    // Making the left side node as a child of the root node.
     commands.push_children(root_entity, &[commands.current_entity().unwrap()]);
 }

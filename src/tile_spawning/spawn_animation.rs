@@ -1,4 +1,4 @@
-//! This module contains the impl of the SpawnAnimation component and its system.
+//! This module contains the implementation of the SpawnAnimation component and its system.
 use crate::common::{Animation, GameSize};
 use bevy::prelude::*;
 

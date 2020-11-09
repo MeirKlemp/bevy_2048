@@ -6,7 +6,7 @@ mod tile_spawning;
 mod ui;
 
 use bevy::{prelude::*, render::pass::ClearColor};
-use common::{GameSize, GameState, Tile};
+use common::{GameSizePlugin, GameState, Tile};
 use movement::MovementPlugin;
 use score::{Score, ScoreSystemPlugin};
 use tile_spawning::{Despawn, SpawnTileEvent, SpawnTilePlugin};
@@ -26,21 +26,18 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(GameSizePlugin)
         .add_plugin(SpawnTilePlugin)
         .add_plugin(MovementPlugin)
         .add_plugin(ScoreSystemPlugin)
         .add_plugin(UiPlugin)
         .init_resource::<GameState>()
-        .init_resource::<GameSize>()
         // Set background color.
         .add_resource(ClearColor(Color::rgb_u8(250, 248, 239)))
         .add_startup_system(setup.system())
         .add_startup_system(board::spawn_board.system())
-        .add_system(board::update_board_size.system())
-        .add_system(board::update_tiles_size_and_position.system())
         .add_system(new_game.system())
         .add_system(space_new_game.system())
-        .add_system(common::update_game_size.system())
         .run();
 }
 

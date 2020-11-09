@@ -1,4 +1,4 @@
-//! This module contains the impl of the enum GameState.
+//! This module contains the implementation of the enum GameState.
 
 // This enum tells in what state the game is in.
 #[derive(Debug)]

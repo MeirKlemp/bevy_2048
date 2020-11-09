@@ -1,4 +1,4 @@
-//! This module contains the impl of the components Tile and Position.
+//! This module contains the implementation of the components Tile and Position.
 
 use bevy::prelude::*;
 

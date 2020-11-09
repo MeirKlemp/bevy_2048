@@ -1,3 +1,5 @@
+//! This module contains the implementation of the score and highscore texts.
+
 use bevy::prelude::*;
 
 use super::LeftSideNode;
@@ -7,12 +9,12 @@ pub struct ScoreText;
 
 pub struct HighScoreText;
 
-/// Updating the score text according to the score.
+/// Updating the score text.
 pub fn score_text(score: Res<Score>, mut text: Mut<Text>, _: &ScoreText) {
     text.value = format!("Score: {}", score.0)
 }
 
-/// Updating the score text according to the score.
+/// Updating the highscore text.
 pub fn highscore_text(highscore: Res<HighScore>, mut text: Mut<Text>, _: &HighScoreText) {
     text.value = format!("Best: {}", highscore.0)
 }
@@ -28,6 +30,7 @@ pub fn spawn_texts(
 
     // Spawning score text.
     commands
+        // Base node.
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Percent(90.0), Val::Percent(28.0)),
@@ -40,7 +43,7 @@ pub fn spawn_texts(
             ..Default::default()
         })
         .with_children(|parent| {
-            // Score Text.
+            // Adding the text as a child.
             parent
                 .spawn(TextComponents {
                     style: Style::default(),
@@ -60,6 +63,7 @@ pub fn spawn_texts(
 
     // Spawning highscore text.
     commands
+        // Base node.
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Percent(90.0), Val::Percent(28.0)),
@@ -77,7 +81,7 @@ pub fn spawn_texts(
             ..Default::default()
         })
         .with_children(|parent| {
-            // Score Text.
+            // Adding the text as a child.
             parent
                 .spawn(TextComponents {
                     style: Style::default(),
@@ -95,5 +99,6 @@ pub fn spawn_texts(
         });
     let highscore_entity = commands.current_entity().unwrap();
 
+    // Making the texts as a child of the left side node.
     commands.push_children(ls_node_entity, &[score_entity, highscore_entity]);
 }

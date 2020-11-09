@@ -1,4 +1,4 @@
-//! This module contains the impl of the MergeAnimation component and system.
+//! This module contains the implementation of the MergeAnimation component and system.
 
 use crate::common::{Animation, GameSize};
 use bevy::prelude::*;

@@ -1,7 +1,10 @@
+//! This module contains the implementation of the title.
+
 use bevy::prelude::*;
 
 use super::RightSideNode;
 
+/// Spawns the title.
 pub fn spawn_title(
     mut commands: Commands,
     assets: Res<AssetServer>,
@@ -12,6 +15,7 @@ pub fn spawn_title(
     let font_handle = assets.get_handle("fonts/FiraSans-Bold.ttf");
 
     commands
+        // Base node.
         .spawn(NodeComponents {
             style: Style {
                 size: Size::new(Val::Percent(90.0), Val::Percent(20.0)),
@@ -30,6 +34,7 @@ pub fn spawn_title(
             ..Default::default()
         })
         .with_children(|parent| {
+            // Adding the text as a child.
             parent.spawn(TextComponents {
                 style: Style::default(),
                 text: Text {
@@ -44,5 +49,6 @@ pub fn spawn_title(
             });
         });
 
+    // Making the title as a chlid of the left side node.
     commands.push_children(rs_node_entity, &[commands.current_entity().unwrap()]);
 }

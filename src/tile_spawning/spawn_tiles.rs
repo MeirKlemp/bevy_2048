@@ -1,4 +1,4 @@
-//! This module cotains the impl of the SpawnTile event, reader and system.
+//! This module cotains the implementation of the SpawnTile event, reader and system.
 
 use crate::common::{GameSize, Position, Tile};
 use crate::movement::{Merged, Moving};
